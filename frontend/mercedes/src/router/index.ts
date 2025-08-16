@@ -1,16 +1,13 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import AdminDashboard from '../views/AdminDashboard.vue'
-import Login from '../views/Login.vue'
-import UserDashboard from '../views/UserDashboard.vue'
+// src/router/index.js
+import { createRouter, createWebHashHistory } from 'vue-router'
+import AppShell from '../views/AppShell.vue'
 
 const routes = [
-    { path: '/login', component: Login },
-    { path: '/adminDashboard', component: AdminDashboard },
-    { path: '/userDashboard', component: UserDashboard }
+    { path: '/', component: AppShell }
 ]
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHashHistory(),
     routes
 })
 

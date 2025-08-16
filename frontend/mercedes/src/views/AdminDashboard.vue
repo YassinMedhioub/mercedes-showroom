@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-tr from-black via-gray-900 to-zinc-800 flex flex-col">
     <header class="flex items-center justify-between bg-black/80 p-5">
       <div class="flex items-center gap-3">
-        <img src="../assets/mercedes-logo-simple.png" class="w-10 h-10" />
+        <img src="../assets/mercedes-logo.png" class="w-10 h-10" />
         <div>
           <div class="text-lg text-white font-bold">Admin Dashboard</div>
           <div class="text-xs text-zinc-300 tracking-widest">Mercedes-Benz</div>
@@ -37,5 +37,5 @@
 <script setup>
 import { useRouter } from 'vue-router';
 const router = useRouter()
-const logout = () => router.push('/')
+const logout = () => router.push('/login')
 </script>
