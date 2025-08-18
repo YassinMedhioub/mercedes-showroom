@@ -2,25 +2,31 @@
   <!-- FULL-WIDTH BACKGROUND -->
   <div
     :class="[
-      'min-h-svh bg-gradient-to-br mt-15',
+      'min-h-svh bg-gradient-to-br ',
       props.isDark
         ? 'from-[#0b0b0e] via-[#0f1115] to-[#1a1d22] text-zinc-100'
         : 'from-[#f6f7fb] via-[#f1f2f6] to-[#e7eaef] text-zinc-900'
     ]"
   >
     <!-- BOXED CONTENT -->
-    <main class="mx-auto w-full px-4 sm:px-6 py-8 max-w-[62rem] xl:max-w-[70rem] pt-[var(--appbar)] sm:pt-[calc(var(--appbar)+0.5rem)]">
+    <main
+      class="mx-auto w-full px-4 sm:px-6 py-8 max-w-[62rem] xl:max-w-[70rem] pt-[var(--appbar)] sm:pt-[calc(var(--appbar)+0.5rem)]"
+    >
       <!-- Header row -->
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 ">
         <div>
-          <h1 :class="[
-                'font-extrabold leading-tight',
-                props.isDark ? 'text-white' : 'text-zinc-900',
-                'text-2xl sm:text-3xl'
-              ]">
+          <h1
+            :class="[
+              'font-extrabold leading-tight',
+              props.isDark ? 'text-white' : 'text-zinc-900',
+              'text-2xl sm:text-3xl'
+            ]"
+          >
             {{ t('title') }}
           </h1>
-          <p class="mt-1 text-sm" :class="props.isDark ? 'text-zinc-300' : 'text-zinc-600'">{{ t('subtitle') }}</p>
+          <p class="mt-1 text-sm" :class="props.isDark ? 'text-zinc-300' : 'text-zinc-600'">
+            {{ t('subtitle') }}
+          </p>
         </div>
 
         <div class="flex items-center gap-2">
@@ -29,7 +35,8 @@
             class="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
             :class="props.isDark
               ? 'bg-zinc-800 text-white hover:bg-zinc-700'
-              : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'">
+              : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+          >
             ← {{ t('back') }}
           </button>
 
@@ -38,7 +45,8 @@
             class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold transition-colors"
             :class="props.isDark
               ? 'bg-[#5d737e] text-white hover:bg-zinc-700'
-              : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'">
+              : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'"
+          >
             <span class="text-lg">＋</span> {{ t('newUser') }}
           </button>
         </div>
@@ -60,32 +68,42 @@
             />
           </div>
 
-          <button @click="fetchUsers(1)"
+          <button
+            @click="fetchUsers(1)"
             class="px-3 py-2 rounded-lg text-sm"
-            :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'">
+            :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+          >
             {{ t('search') }}
           </button>
 
-          <button @click="resetFilters"
+          <button
+            @click="resetFilters"
             class="px-3 py-2 rounded-lg text-sm"
-            :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'">
+            :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+          >
             {{ t('reset') }}
           </button>
         </div>
 
         <div class="flex items-center gap-2">
           <label class="text-xs sm:text-sm" :class="props.isDark ? 'text-zinc-300' : 'text-zinc-600'">{{ t('pageSize') }}</label>
-          <select v-model.number="size" @change="fetchUsers(1)"
+          <select
+            v-model="size"
+            @change="fetchUsers(1)"
             class="px-2 py-1 rounded-lg text-sm"
-            :class="props.isDark ? 'bg-zinc-900 text-white border border-zinc-800' : 'bg-white border border-zinc-300 text-zinc-800'">
-            <option :value="5">5</option>
-            <option :value="10">10</option>
-            <option :value="20">20</option>
+            :class="props.isDark ? 'bg-zinc-900 text-white border border-zinc-800' : 'bg-white border border-zinc-300 text-zinc-800'"
+          >
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="ALL">{{ t('pageAll') }}</option>
           </select>
 
-          <button @click="fetchUsers(page)"
+          <button
+            @click="fetchUsers(page)"
             class="px-3 py-2 rounded-lg text-sm"
-            :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'">
+            :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+          >
             ⟳ {{ t('refresh') }}
           </button>
         </div>
@@ -114,11 +132,11 @@
           <!-- Loading skeleton -->
           <div v-if="loading" class="divide-y" :class="props.isDark ? 'divide-zinc-800' : 'divide-zinc-200'">
             <div v-for="i in 5" :key="i" class="px-4 py-3 grid grid-cols-12 gap-2">
-              <div class="col-span-3 h-5 rounded animate-pulse" :class="props.isDark?'bg-zinc-800':'bg-zinc-200'"></div>
-              <div class="col-span-3 h-5 rounded animate-pulse" :class="props.isDark?'bg-zinc-800':'bg-zinc-200'"></div>
-              <div class="col-span-2 h-5 rounded animate-pulse" :class="props.isDark?'bg-zinc-800':'bg-zinc-200'"></div>
-              <div class="col-span-2 h-5 rounded animate-pulse" :class="props.isDark?'bg-zinc-800':'bg-zinc-200'"></div>
-              <div class="col-span-2 h-5 rounded animate-pulse ml-auto w-24" :class="props.isDark?'bg-zinc-800':'bg-zinc-200'"></div>
+              <div class="col-span-3 h-5 rounded animate-pulse" :class="props.isDark ? 'bg-zinc-800' : 'bg-zinc-200'"></div>
+              <div class="col-span-3 h-5 rounded animate-pulse" :class="props.isDark ? 'bg-zinc-800' : 'bg-zinc-200'"></div>
+              <div class="col-span-2 h-5 rounded animate-pulse" :class="props.isDark ? 'bg-zinc-800' : 'bg-zinc-200'"></div>
+              <div class="col-span-2 h-5 rounded animate-pulse" :class="props.isDark ? 'bg-zinc-800' : 'bg-zinc-200'"></div>
+              <div class="col-span-2 h-5 rounded animate-pulse ml-auto w-24" :class="props.isDark ? 'bg-zinc-800' : 'bg-zinc-200'"></div>
             </div>
           </div>
 
@@ -127,9 +145,11 @@
             <div class="text-4xl mb-2">⭐</div>
             <div class="font-semibold mb-1">{{ t('empty') }}</div>
             <div class="text-sm opacity-70">{{ t('emptyHint') }}</div>
-            <button @click="openCreate"
+            <button
+              @click="openCreate"
               class="mt-4 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-              :class="props.isDark ? 'bg-[#5d737e] text-white hover:bg-zinc-700' : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'">
+              :class="props.isDark ? 'bg-[#5d737e] text-white hover:bg-zinc-700' : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'"
+            >
               ＋ {{ t('newUser') }}
             </button>
           </div>
@@ -143,8 +163,10 @@
             >
               <!-- user -->
               <div class="col-span-3 flex items-center gap-3 min-w-0">
-                <div class="w-9 h-9 rounded-full grid place-items-center font-bold shrink-0"
-                     :class="props.isDark ? 'bg-zinc-800 text-white' : 'bg-zinc-200 text-zinc-800'">
+                <div
+                  class="w-9 h-9 rounded-full grid place-items-center font-bold shrink-0"
+                  :class="props.isDark ? 'bg-zinc-800 text-white' : 'bg-zinc-200 text-zinc-800'"
+                >
                   {{ initials(u.username || u.name) }}
                 </div>
                 <div class="min-w-0">
@@ -158,12 +180,14 @@
 
               <!-- role -->
               <div class="col-span-2">
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs border"
-                      :class="u.role==='ADMIN'
-                        ? (props.isDark ? 'bg-purple-900/30 text-purple-200 border-purple-700'
-                                        : 'bg-purple-100 text-purple-800 border-purple-300')
-                        : (props.isDark ? 'bg-zinc-800 text-zinc-200 border-zinc-700'
-                                        : 'bg-zinc-100 text-zinc-800 border-zinc-300')">
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs border"
+                  :class="u.role === 'ADMIN'
+                    ? (props.isDark ? 'bg-purple-900/30 text-purple-200 border-purple-700'
+                                    : 'bg-purple-100 text-purple-800 border-purple-300')
+                    : (props.isDark ? 'bg-zinc-800 text-zinc-200 border-zinc-700'
+                                    : 'bg-zinc-100 text-zinc-800 border-zinc-300')"
+                >
                   {{ u.role }}
                 </span>
               </div>
@@ -175,11 +199,13 @@
                   class="relative inline-flex h-6 w-11 items-center rounded-full transition"
                   :class="u.active
                     ? (props.isDark ? 'bg-emerald-600' : 'bg-emerald-500')
-                    : (props.isDark ? 'bg-zinc-700' : 'bg-zinc-300')">
+                    : (props.isDark ? 'bg-zinc-700' : 'bg-zinc-300')"
+                >
                   <span class="sr-only">{{ t('status') }}</span>
                   <span
                     class="inline-block h-5 w-5 transform rounded-full bg-white transition"
-                    :class="u.active ? 'translate-x-5' : 'translate-x-1'"></span>
+                    :class="u.active ? 'translate-x-5' : 'translate-x-1'"
+                  ></span>
                 </button>
               </div>
 
@@ -187,21 +213,27 @@
               <div class="col-span-2 flex items-center justify-end gap-2">
                 <span class="text-xs opacity-70 mr-1">{{ formatDate(u.createdAt || u.created_at) }}</span>
 
-                <button @click="openEdit(u)"
+                <button
+                  @click="openEdit(u)"
                   class="px-2 py-1 rounded border text-xs"
-                  :class="props.isDark ? 'border-zinc-700 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'">
+                  :class="props.isDark ? 'border-zinc-700 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'"
+                >
                   ✏️ {{ t('edit') }}
                 </button>
 
-                <button @click="resetPassword(u)"
+                <button
+                  @click="resetPassword(u)"
                   class="px-2 py-1 rounded border text-xs"
-                  :class="props.isDark ? 'border-zinc-700 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'">
+                  :class="props.isDark ? 'border-zinc-700 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'"
+                >
                   🔒 {{ t('resetPwd') }}
                 </button>
 
-                <button @click="confirmDelete(u)"
+                <button
+                  @click="confirmDelete(u)"
                   class="px-2 py-1 rounded border text-xs"
-                  :class="props.isDark ? 'border-red-800 bg-red-900/30 text-red-200 hover:bg-red-900/50' : 'border-red-300 bg-red-100 text-red-700 hover:bg-red-200'">
+                  :class="props.isDark ? 'border-red-800 bg-red-900/30 text-red-200 hover:bg-red-900/50' : 'border-red-300 bg-red-100 text-red-700 hover:bg-red-200'"
+                >
                   🗑 {{ t('delete') }}
                 </button>
               </div>
@@ -210,21 +242,26 @@
         </div>
 
         <!-- Footer / pagination -->
-        <div class="flex items-center justify-between px-4 py-3 border-t"
-             :class="props.isDark ? 'border-zinc-800' : 'border-zinc-200'">
+        <div class="flex items-center justify-between px-4 py-3 border-t" :class="props.isDark ? 'border-zinc-800' : 'border-zinc-200'">
           <div class="text-xs" :class="props.isDark ? 'text-zinc-300' : 'text-zinc-600'">
             {{ t('showing') }} {{ from }}–{{ to }} {{ t('of') }} {{ total }}
           </div>
           <div class="flex items-center gap-2">
-            <button :disabled="page<=1" @click="fetchUsers(page-1)"
-                    class="px-3 py-1.5 rounded text-sm disabled:opacity-40"
-                    :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'">
+            <button
+              :disabled="page<=1 || isAll"
+              @click="fetchUsers(page-1)"
+              class="px-3 py-1.5 rounded text-sm disabled:opacity-40"
+              :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+            >
               ‹
             </button>
             <span class="text-sm" :class="props.isDark ? 'text-zinc-200' : 'text-zinc-800'">{{ page }}</span>
-            <button :disabled="to>=total" @click="fetchUsers(page+1)"
-                    class="px-3 py-1.5 rounded text-sm disabled:opacity-40"
-                    :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'">
+            <button
+              :disabled="to>=total || isAll"
+              @click="fetchUsers(page+1)"
+              class="px-3 py-1.5 rounded text-sm disabled:opacity-40"
+              :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+            >
               ›
             </button>
           </div>
@@ -232,27 +269,127 @@
       </section>
     </main>
 
-    <!-- Modals (fixed overlay; can stay outside <main> or inside — fixed is fine) -->
+    <!-- Create/Edit Form modal -->
     <transition name="fade">
       <div v-if="showForm" class="fixed inset-0 z-[1000] grid place-items-center bg-black/50 p-4">
-        <div class="w-full max-w-lg rounded-2xl shadow-2xl p-5 sm:p-6"
-             :class="props.isDark ? 'bg-zinc-900/95 text-white border border-zinc-800' : 'bg-white text-zinc-800'">
-          <!-- ... form content unchanged ... -->
+        <div
+          class="w-full max-w-lg rounded-2xl shadow-2xl p-5 sm:p-6"
+          :class="props.isDark ? 'bg-zinc-900/95 text-white border border-zinc-800' : 'bg-white text-zinc-800'"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-lg font-semibold">{{ form.id ? t('editUser') : t('createUser') }}</div>
+            <button @click="closeForm" class="text-sm opacity-70 hover:opacity-100">✕</button>
+          </div>
+
+          <form @submit.prevent="saveUser" class="space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs mb-1 opacity-70">{{ t('username') }}</label>
+                <input
+                  v-model.trim="form.username"
+                  required
+                  class="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                  :class="props.isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-300'"
+                />
+              </div>
+              <div>
+                <label class="block text-xs mb-1 opacity-70">{{ t('email') }}</label>
+                <input
+                  v-model.trim="form.email"
+                  type="email"
+                  required
+                  class="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                  :class="props.isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-300'"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs mb-1 opacity-70">{{ t('role') }}</label>
+                <select
+                  v-model="form.role"
+                  class="w-full px-3 py-2 rounded-lg text-sm"
+                  :class="props.isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-300'"
+                >
+                  <option value="USER">USER</option>
+                  <option value="ADMIN">ADMIN</option>
+                </select>
+              </div>
+
+              <label class="flex items-center gap-2 text-sm mt-6 sm:mt-0">
+                <input type="checkbox" v-model="form.active" />
+                <span>{{ t('active') }}</span>
+              </label>
+
+              <div v-if="!form.id" class="sm:col-span-2">
+                <label class="block text-xs mb-1 opacity-70">{{ t('password') }}</label>
+                <input
+                  v-model.trim="form.password"
+                  :placeholder="t('passwordPH')"
+                  required
+                  class="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                  :class="props.isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-300'"
+                />
+              </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                @click="closeForm"
+                class="px-3 py-2 rounded-lg text-sm"
+                :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+              >
+                {{ t('cancel') }}
+              </button>
+              <button
+                type="submit"
+                :disabled="saving"
+                class="px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+                :class="props.isDark ? 'bg-[#5d737e] text-white hover:bg-zinc-700' : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'"
+              >
+                {{ form.id ? t('save') : t('create') }}
+              </button>
+            </div>
+
+            <p v-if="formErr" class="text-red-400 text-sm mt-1">{{ formErr }}</p>
+          </form>
         </div>
       </div>
     </transition>
 
+    <!-- Delete confirm -->
     <transition name="fade">
       <div v-if="toDelete" class="fixed inset-0 z-[1000] grid place-items-center bg-black/50 p-4">
-        <div class="w-full max-w-md rounded-2xl shadow-2xl p-5"
-             :class="props.isDark ? 'bg-zinc-900/95 text-white border border-zinc-800' : 'bg-white text-zinc-800'">
-          <!-- ... confirm content unchanged ... -->
+        <div
+          class="w-full max-w-md rounded-2xl shadow-2xl p-5"
+          :class="props.isDark ? 'bg-zinc-900/95 text-white border border-zinc-800' : 'bg-white text-zinc-800'"
+        >
+          <div class="font-semibold mb-2">{{ t('confirmTitle') }}</div>
+          <p class="text-sm opacity-80 mb-4">
+            {{ t('confirmText') }} <b>{{ toDelete.username || toDelete.name }}</b>?
+          </p>
+          <div class="flex items-center justify-end gap-2">
+            <button
+              @click="toDelete=null"
+              class="px-3 py-2 rounded-lg text-sm"
+              :class="props.isDark ? 'bg-zinc-800 text-white hover:bg-zinc-700' : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
+            >
+              {{ t('cancel') }}
+            </button>
+            <button
+              @click="removeUser"
+              :disabled="saving"
+              class="px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+              :class="props.isDark ? 'bg-red-900/40 text-red-200 border border-red-800' : 'bg-red-100 text-red-700 border border-red-300'"
+            >
+              {{ t('delete') }}
+            </button>
+          </div>
         </div>
       </div>
     </transition>
   </div>
 </template>
-
 
 <script setup>
 import axios from 'axios'
@@ -260,7 +397,28 @@ import { computed, onMounted, ref } from 'vue'
 
 const emit = defineEmits(['navigate'])
 
-/* Props from parent (like your AvailableCars example) */
+/* Axios instance pinned to /api (or VITE_API_BASE) */
+const API = axios.create({
+  baseURL: (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, ''),
+})
+API.interceptors.request.use((cfg) => {
+  const tok = localStorage.getItem('authToken')
+  if (tok) cfg.headers.Authorization = `Bearer ${tok}`
+  return cfg
+})
+API.interceptors.response.use(
+  r => r,
+  err => {
+    const s = err?.response?.status
+    if (s === 401 || s === 403) {
+      alert('Your session expired or you are not authorized.')
+      emit('navigate', 'login')
+    }
+    return Promise.reject(err)
+  }
+)
+
+/* Props */
 const props = defineProps({
   isDark: { type: Boolean, default: false },
   language: { type: String, default: 'FR' },
@@ -277,6 +435,7 @@ const i18n = {
     search: 'Rechercher',
     reset: 'Réinitialiser',
     pageSize: 'Par page',
+    pageAll: 'Tout',
     refresh: 'Actualiser',
     user: 'Utilisateur',
     email: 'Email',
@@ -313,6 +472,7 @@ const i18n = {
     search: 'Search',
     reset: 'Reset',
     pageSize: 'Per page',
+    pageAll: 'All',
     refresh: 'Refresh',
     user: 'User',
     email: 'Email',
@@ -343,20 +503,18 @@ const i18n = {
 }
 const t = (k) => (i18n[props.language] || i18n.FR)[k] ?? k
 
-/* API base (consider Vite proxy: set VITE_API_BASE=/api and proxy in vite.config) */
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
-
 /* list state */
 const q = ref('')
 const page = ref(1)
-const size = ref(10)
+const size = ref('10')              // '5' | '10' | '20' | 'ALL' (string to keep select happy)
+const isAll = computed(() => String(size.value).toUpperCase() === 'ALL')
 const total = ref(0)
 const users = ref([])
 const loading = ref(false)
 
 /* computed */
-const from = computed(() => users.value.length ? (page.value - 1) * size.value + 1 : 0)
-const to   = computed(() => Math.min(page.value * size.value, total.value))
+const from = computed(() => users.value.length ? (isAll.value ? 1 : (page.value - 1) * Number(size.value) + 1) : 0)
+const to   = computed(() => isAll.value ? users.value.length : Math.min(page.value * Number(size.value), total.value))
 
 /* form state */
 const showForm = ref(false)
@@ -383,12 +541,26 @@ async function fetchUsers(target = page.value) {
   try {
     loading.value = true
     page.value = target
-    const { data } = await axios.get(`${API_BASE}/api/users`, {
-      params: { q: q.value || undefined, page: page.value, size: size.value },
-      headers: authHeader()
+
+    if (isAll.value) {
+      await fetchAllUsers()
+      return
+    }
+
+    const { data } = await API.get('/users', {
+      params: { q: q.value || undefined, page: page.value, size: Number(size.value) },
     })
-    users.value = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : [])
-    total.value = Number.isFinite(data?.total) ? data.total : users.value.length
+
+    const items =
+      Array.isArray(data?.items) ? data.items :
+      Array.isArray(data?.content) ? data.content :
+      Array.isArray(data) ? data : []
+
+    users.value = items
+    total.value =
+      Number.isFinite(data?.total) ? data.total :
+      Number.isFinite(data?.totalElements) ? data.totalElements :
+      items.length
   } catch (e) {
     console.error('fetchUsers error', e)
     users.value = []
@@ -396,6 +568,42 @@ async function fetchUsers(target = page.value) {
   } finally {
     loading.value = false
   }
+}
+
+/* fetch absolutely all users across pages */
+async function fetchAllUsers() {
+  const STEP = 100
+  let p = 1
+  const all = []
+  let knownTotal = 0
+
+  // best-effort loop that works for {items,total}, {content,totalElements}, or array
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { data } = await API.get('/users', {
+      params: { q: q.value || undefined, page: p, size: STEP },
+    })
+    const batch =
+      Array.isArray(data?.items) ? data.items :
+      Array.isArray(data?.content) ? data.content :
+      Array.isArray(data) ? data : []
+
+    if (p === 1) {
+      knownTotal =
+        Number.isFinite(data?.total) ? data.total :
+        Number.isFinite(data?.totalElements) ? data.totalElements :
+        0
+    }
+
+    all.push(...batch)
+
+    if (batch.length < STEP) break
+    if (knownTotal && all.length >= knownTotal) break
+    p++
+  }
+
+  users.value = all
+  total.value = all.length
 }
 
 function resetFilters() {
@@ -425,9 +633,9 @@ async function saveUser() {
     formErr.value = ''
     const body = { username: form.value.username, email: form.value.email, role: form.value.role, active: form.value.active }
     if (form.value.id) {
-      await axios.put(`${API_BASE}/api/users/${form.value.id}`, body, { headers: authHeader(true) })
+      await API.put(`/users/${form.value.id}`, body)
     } else {
-      await axios.post(`${API_BASE}/api/users`, { ...body, password: form.value.password }, { headers: authHeader(true) })
+      await API.post('/users', { ...body, password: form.value.password })
     }
     showForm.value = false
     await fetchUsers(page.value)
@@ -441,7 +649,7 @@ async function saveUser() {
 
 async function toggleActive(u) {
   try {
-    await axios.patch(`${API_BASE}/api/users/${u.id}/toggle`, {}, { headers: authHeader(true) })
+    await API.patch(`/users/${u.id}/toggle`)
     u.active = !u.active
   } catch (e) {
     console.error('toggleActive error', e)
@@ -451,7 +659,7 @@ async function toggleActive(u) {
 
 async function resetPassword(u) {
   try {
-    await axios.post(`${API_BASE}/api/users/${u.id}/reset-password`, {}, { headers: authHeader(true) })
+    await API.post(`/users/${u.id}/reset-password`)
     alert(props.language === 'FR' ? 'Mot de passe réinitialisé (si email configuré).' : 'Password reset (if email configured).')
   } catch (e) {
     console.error('resetPassword error', e)
@@ -464,7 +672,7 @@ async function removeUser() {
   if (!toDelete.value) return
   try {
     saving.value = true
-    await axios.delete(`${API_BASE}/api/users/${toDelete.value.id}`, { headers: authHeader(true) })
+    await API.delete(`/users/${toDelete.value.id}`)
     toDelete.value = null
     await fetchUsers(page.value)
   } catch (e) {
@@ -475,15 +683,7 @@ async function removeUser() {
   }
 }
 
-/* utils */
-function authHeader(json=false) {
-  const h = {}
-  const tok = localStorage.getItem('authToken')
-  if (tok) h.Authorization = `Bearer ${tok}`
-  if (json) h['Content-Type'] = 'application/json'
-  return h
-}
-
+/* search debounce */
 let searchTimer = null
 function onDebouncedSearch() {
   clearTimeout(searchTimer)
@@ -493,7 +693,6 @@ function onDebouncedSearch() {
 /* init */
 onMounted(() => fetchUsers(1))
 </script>
-
 
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity .15s ease; }

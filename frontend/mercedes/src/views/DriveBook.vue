@@ -138,7 +138,7 @@
           <div class="mt-8 flex flex-col sm:flex-row items-center justify-end gap-3">
             <button
               type="button"
-              @click="emit('navigate','home')"
+              @click="emit('navigate','dashboard')"
               class="w-full sm:w-auto px-4 py-2 rounded-lg font-medium transition-colors"
               :class="props.isDark
                 ? 'bg-zinc-800 text-white hover:bg-zinc-700'

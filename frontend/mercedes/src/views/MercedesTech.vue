@@ -116,24 +116,23 @@
           {{ t('ctaSubtitle') }}
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <router-link
-            to="/cars"
+          <button @click="emit('navigate','cars')"
             class="px-5 py-3 rounded-lg font-semibold transition-colors"
             :class="props.isDark
               ? 'bg-[#5d737e] text-white hover:bg-zinc-700'
               : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'"
           >
             {{ t('exploreModels') }}
-          </router-link>
-          <router-link
-            to="/test-drive"
+          </button>
+          <button
+            @click="emit('navigate','driveBook')"
             class="px-5 py-3 rounded-lg font-semibold transition-colors"
             :class="props.isDark
               ? 'bg-zinc-800 text-white hover:bg-zinc-700'
               : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-200'"
           >
             {{ t('bookTestDrive') }}
-          </router-link>
+          </button>
         </div>
       </div>
     </section>
