@@ -66,12 +66,12 @@ const props = defineProps({
 const emit = defineEmits(['navigate'])
 
 /* Images */
-import aClassAmgLine from '/src/assets/cars/AClassAmgLine.png'
-import amgGt from '/src/assets/cars/amg_gt.png'
-import c200 from '/src/assets/cars/C200.png'
-import gla200d from '/src/assets/cars/GLA200D.png'
-import gleS63 from '/src/assets/cars/GLES63.avif'
-import sClass2012 from '/src/assets/cars/Sclass2012.png'
+import aClassAmgLine from '../assets/cars/AClassAmgLine.png'
+import amgGt from '../assets/cars/amg_gt.png'
+import c200 from '../assets/cars/C200.png'
+import gla200d from '../assets/cars/GLA200D.png'
+import gleS63 from '../assets/cars/GLES63.avif'
+import sClass2012 from '../assets/cars/Sclass2012.png'
 
 /* i18n */
 const i18n = {
