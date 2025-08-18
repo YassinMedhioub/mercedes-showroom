@@ -1,6 +1,6 @@
 package com.mercedes.backend.security;
 
-import com.mercedes.backend.filter.JwtAuthenticationFilter;
+/*import com.mercedes.backend.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,4 +31,27 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+}*/
+
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())  // ✅ New syntax for Spring Security 6+
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()   // allow all endpoints
+                );
+
+        return http.build();
+    }
 }
+
+
