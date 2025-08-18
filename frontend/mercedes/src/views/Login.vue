@@ -180,20 +180,18 @@ const toggleDark = () => {
   localStorage.setItem('darkMode', String(isDark.value))
   updateHtmlClass()
 }
-
 watch(language, val => localStorage.setItem('lang', val))
 watch(isDark, () => localStorage.setItem('darkMode', String(isDark.value)))
 
-/** Auto-redirect if already logged in **/
+/** Auto-handoff if already logged **/
 onMounted(() => {
   updateHtmlClass()
   const logged = localStorage.getItem('isLoggedIn') === 'true'
   if (logged) {
-    const role = localStorage.getItem('role')
-    const last = localStorage.getItem('currentPage')
-    if (role === 'ADMIN') router.replace('/adminDashboard')
-    else if (last) router.replace(last)
-    else router.replace('/userDashboard')
+    const role = localStorage.getItem('role') || 'USER'
+    const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
+    localStorage.setItem('currentPage', landing)
+    emit('login', { role })               // let AppShell switch without URL change
   }
 })
 
@@ -215,29 +213,18 @@ async function handleLogin() {
       { headers: { 'Content-Type': 'application/json' }, timeout: 15000 }
     )
 
-    // Expecting { token, role } from backend
+    // Expecting { token, role }
     const token = data?.token
     const role  = data?.role || 'USER'
 
-    // Persist auth
     localStorage.setItem('isLoggedIn', 'true')
     localStorage.setItem('role', role)
     if (token) localStorage.setItem('authToken', token)
-    // Save landing page for next time
-    localStorage.setItem('currentPage', role === 'ADMIN' ? '/adminDashboard' : '/userDashboard')
 
-    // If "remember me" unchecked, store a session flag to clear on unload
-    if (!remember.value) {
-      sessionStorage.setItem('clearAuthOnClose', 'true')
-      window.addEventListener('beforeunload', () => {
-        localStorage.removeItem('isLoggedIn')
-        localStorage.removeItem('authToken')
-        localStorage.removeItem('role')
-        localStorage.removeItem('currentPage')
-      }, { once: true })
-    }
+    const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
+    localStorage.setItem('currentPage', landing)
 
-    // Navigate now**
+    // hand control to AppShell (no URL change)
     emit('login', { role })
   } catch (e) {
     error.value = language.value === 'FR'

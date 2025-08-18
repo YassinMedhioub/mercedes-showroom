@@ -1,5 +1,6 @@
 <template>
   <div>
+    
     <!-- PAGE TITLE -->
     <div class="w-full max-w-6xl mx-auto px-3 sm:px-6 mt-6 mb-2 flex items-center justify-between">
       <h1 :class="['font-bold text-2xl sm:text-3xl', isDarkMode ? 'text-white' : 'text-zinc-800']">
@@ -49,7 +50,10 @@
 </template>
 
 <script setup>
+
 import { onMounted, onUnmounted, ref, watch } from 'vue'
+onMounted(() => console.log('[mount] AvailableCars'))
+onUnmounted(() => console.log('[unmount] AvailableCars'))
 
 /* ---- Emits ---- */
 const emit = defineEmits(['navigate'])

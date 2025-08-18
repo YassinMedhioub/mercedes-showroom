@@ -14,11 +14,13 @@
       <h1 class="text-3xl text-white mb-4 font-bold">Bienvenue, Administrateur</h1>
       <p class="text-zinc-300 mb-8">Gérez les utilisateurs, les véhicules, et plus encore.</p>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-        <div class="rounded-xl bg-zinc-900/80 p-6 shadow-xl text-center text-white">
-          <div class="text-4xl mb-2">👤</div>
-          <div class="font-semibold mb-1">Gestion Utilisateurs</div>
-          <div class="text-xs text-zinc-400">Ajouter, modifier, supprimer...</div>
-        </div>
+        <button @click="$emit('navigate', 'ManageUsers')">
+          <div class="rounded-xl bg-zinc-900/80 p-6 shadow-xl text-center text-white">
+            <div class="text-4xl mb-2">👤</div>
+            Gestion Utilisateurs
+            <div class="text-xs text-zinc-400">Ajouter, modifier, supprimer...</div>
+          </div>
+        </button>
         <div class="rounded-xl bg-zinc-900/80 p-6 shadow-xl text-center text-white">
           <div class="text-4xl mb-2">🚗</div>
           <div class="font-semibold mb-1">Gestion Véhicules</div>
@@ -36,6 +38,11 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+
+/* Emit to shell for logout */
+const emit = defineEmits(['logout', 'navigate'])
 const router = useRouter()
-const logout = () => router.push('/login')
+function logout() {
+  emit('logout')
+}
 </script>
