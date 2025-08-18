@@ -1,14 +1,21 @@
 <template>
   <!-- Render only after we decide the landing page to avoid flicker -->
-   <HeaderBar v-if="ready && currentPage !== 'login'" @logout="handleLogout" />
+   <HeaderBar
+    v-if="ready && currentPage !== 'login'"
+    :is-admin="isAdminView"
+    @logout="handleLogout"
+    />
   <component
     v-if="ready"
     :is="pageComponents[currentPage]"
     :key="currentPage"               
     :car-id="selectedCarId"
+    :adminName="currentUser.fullName"
     @login="handleLogin"
     @logout="handleLogout"
     @navigate="handleNavigate"
+    :isDark="isDark"
+    :language="lang"
   />
 
   <ChatWidget
@@ -22,7 +29,7 @@
 </template>
 
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import ChatWidget from '../components/ChatWidget.vue'
 import FooterBar from '../components/FooterBar.vue'
 import HeaderBar from '../components/HeaderBar.vue'
@@ -32,9 +39,11 @@ import { usePrefs } from '../components/usePrefs'
 import AdminDashboard from './AdminDashboard.vue'
 import AvailableCars from './AvailableCars.vue'
 import CarDetails from './CarDetails.vue'
+import DriveBook from './DriveBook.vue'
 import Login from './Login.vue'
 import ManageUsers from './ManageUsers.vue'
 import MeetAdvisor from './MeetAdvisor.vue'
+import MercedesTechs from './MercedesTech.vue'
 import SpecialOffers from './SpecialOffers.vue'
 import UserDashboard from './UserDashboard.vue'
 
@@ -48,6 +57,8 @@ const pageComponents = {
   meetAdvisor: MeetAdvisor,
   offers: SpecialOffers,
   car: CarDetails,
+  techs: MercedesTechs,
+  driveBook : DriveBook,
 }
 
 /* State */
@@ -56,6 +67,20 @@ const currentPage = ref('login')     // start at login
 const selectedCarId = ref(null)
 const ready = ref(false)
 const { lang, isDark } = usePrefs()
+const ADMIN_PAGES = new Set(['adminDashboard', 'ManageUsers'])
+const isAdminView = computed(() => ADMIN_PAGES.has(currentPage.value))
+
+const language = lang 
+const isDarkMode = isDark  
+
+const carsArray = [
+  { id:1, model:"Classe S 2012",            family:"Classe S", type:"Berline de Luxe", price:"110 900",  aliases:["classe s","class s","s-class","w221","mercedes s"] },
+  { id:2, model:"Classe A 200 d AMG Line",  family:"Classe A", type:"Citadine Compacte", price:"159 200",  aliases:["classe a","class a","a-class","a 200","a200"] },
+  { id:3, model:"Mercedes Benz GLE S 63 4MATIC Coupé", family:"GLE Coupé", type:"SUV", price:"240 500", aliases:["gle","gle coupe","gle coupé","gle s63"] },
+  { id:4, model:"Mercedes AMG GT",          family:"AMG GT",  type:"Sports Car", price:"170 000", aliases:["amg gt","gt amg"] },
+  { id:5, model:"Classe C 200 Avantgarde",  family:"Classe C", type:"Break", price:"110 000",  aliases:["classe c","class c","c-class","c200"] },
+  { id:6, model:"GLA 200 D",                family:"GLA",      type:"SUV Coupé", price:"92 400", aliases:["gla","gla 200","gla200"] },
+];
 
 /* Decide where to land on load */
 function pickLandingPage() {
@@ -102,11 +127,15 @@ function onStorage(e) {
   if (e.key === 'selectedCarId') selectedCarId.value = e.newValue
 }
 
-function handleLogin({ role } = {}) {
+function handleLogin({ role, fullName } = {}) {
   localStorage.setItem('isLoggedIn', 'true')
   if (role) localStorage.setItem('role', role)
+  if (fullName) {
+    localStorage.setItem('adminName', fullName)
+    currentUser.value.fullName = fullName
+  }
   const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
-  currentPage.value = landing                      // ← no URL change
+  currentPage.value = landing
   localStorage.setItem('currentPage', landing)
 }
 
@@ -115,9 +144,12 @@ function handleLogout() {
   localStorage.removeItem('role')
   localStorage.removeItem('currentPage')
   localStorage.removeItem('selectedCarId')
+  localStorage.removeItem('adminName')                // ✅ clear
   selectedCarId.value = null
+  currentUser.value.fullName = 'Administrateur'       // ✅ reset
   currentPage.value = 'login'
 }
+
 
 function go(page, extras = {}) {
   if (!isLoggedIn.value && page !== 'login') { currentPage.value = 'login'; return }
@@ -139,6 +171,11 @@ function handleNavigate(payload) {
   if (typeof payload === 'string') go(payload)
   else if (payload?.page) go(payload.page, payload)
 }
+
+const currentUser = ref({
+  fullName: localStorage.getItem('adminName') || 'Administrateur'
+})
+
 
 window.addEventListener('chat-open-details', e => handleNavigate({ page: 'car', id: e.detail }))
 window.addEventListener('chat-open-drive',   () => handleNavigate('driveBook'))

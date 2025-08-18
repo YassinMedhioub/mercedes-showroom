@@ -4,7 +4,6 @@
                        : 'from-[#ffffffc8] via-[#ffffffc8] to-[#ffffffc8]',
                 'flex','flex-col']">
 
-    <!-- HEADER -->
     <header class="flex flex-wrap items-center justify-between w-full px-4 md:px-8 py-2
                    backdrop-blur sticky top-0 z-50 shadow-md gap-y-2"
             :class="isDark ? 'bg-black' : 'bg-white/60'">
@@ -40,7 +39,10 @@
 
         <!-- Dark/Light toggle -->
         <button @click="toggleDark"
-                class="ml-1 sm:ml-2 bg-zinc-800 hover:bg-zinc-600 p-2 rounded-lg text-white transition"
+                class="ml-1 sm:ml-2 p-2 rounded-lg transition"
+                :class="isDark
+                  ? 'bg-zinc-800 text-white hover:bg-zinc-700'
+                  : 'bg-zinc-200 text-zinc-900 hover:bg-zinc-300'"
                 :aria-label="language==='FR' ? 'Basculer le thème' : 'Toggle theme'">
           <svg v-if="!isDark" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -181,7 +183,10 @@ const toggleDark = () => {
   updateHtmlClass()
 }
 watch(language, val => localStorage.setItem('lang', val))
-watch(isDark, () => localStorage.setItem('darkMode', String(isDark.value)))
+watch(isDark, () => {                               // keep <html> in sync even if changed elsewhere
+  localStorage.setItem('darkMode', String(isDark.value))
+  updateHtmlClass()
+})
 
 /** Auto-handoff if already logged **/
 onMounted(() => {
@@ -191,7 +196,8 @@ onMounted(() => {
     const role = localStorage.getItem('role') || 'USER'
     const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
     localStorage.setItem('currentPage', landing)
-    emit('login', { role })               // let AppShell switch without URL change
+    const savedName = localStorage.getItem('adminName') || localStorage.getItem('username') || 'Administrateur'
+    emit('login', { role, fullName: savedName })  // ✅ send name so greeting shows correctly
   }
 })
 
@@ -213,19 +219,24 @@ async function handleLogin() {
       { headers: { 'Content-Type': 'application/json' }, timeout: 15000 }
     )
 
-    // Expecting { token, role }
+    // Expecting { token, role, name? }
     const token = data?.token
     const role  = data?.role || 'USER'
+    const nameFromApi =
+      data?.name || data?.fullName || data?.user?.name || data?.username
+    const resolvedName = (nameFromApi || username.value).trim()
 
     localStorage.setItem('isLoggedIn', 'true')
     localStorage.setItem('role', role)
+    localStorage.setItem('adminName', resolvedName)     // ✅ store display name
+    if (remember.value) localStorage.setItem('username', username.value)
     if (token) localStorage.setItem('authToken', token)
 
     const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
     localStorage.setItem('currentPage', landing)
 
-    // hand control to AppShell (no URL change)
-    emit('login', { role })
+    // hand control to AppShell (no URL change) + send the name
+    emit('login', { role, fullName: resolvedName, username: username.value })
   } catch (e) {
     error.value = language.value === 'FR'
       ? 'Identifiants incorrects ou serveur indisponible'

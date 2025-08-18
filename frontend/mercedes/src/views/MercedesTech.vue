@@ -1,48 +1,62 @@
 <template>
-  <div >
-
+  <div :class="[
+      { dark: isDark },
+      'min-h-screen',
+      'bg-gradient-to-br',
+      isDark
+        ? 'from-zinc-900 via-black to-gray-800'
+        : 'from-[#f7f7fa] via-[#f2f2f5] to-[#e5e7eb]',
+      'flex','flex-col', 
+    ]">
     <!-- HERO -->
     <section class="w-full max-w-6xl mx-auto px-3 sm:px-6 pt-8 sm:pt-12">
-      
       <div class="w-full max-w-6xl mx-auto px-3 sm:px-6 mb-2 flex items-center justify-between">
-        <!-- Left: Title only -->
-        <h1 :class="[
-              'font-extrabold leading-tight',
-              isDarkMode ? 'text-white' : 'text-zinc-900',
-              'text-3xl sm:text-4xl'
-            ]">
+        <!-- Title -->
+        <h1
+          :class="[
+            'font-extrabold leading-tight text-3xl sm:text-4xl',
+            props.isDark ? 'text-white' : 'text-zinc-900'
+          ]"
+        >
           {{ t('techTitle') }}
         </h1>
 
-        <!-- Right: Back button -->
+        <!-- Back -->
         <button
-          @click="emit('navigate','home')"
+          type="button"
+          @click="emit('navigate','dashboard')"
           class="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
-          :class="isDarkMode
+          :class="props.isDark
             ? 'bg-zinc-800 text-white hover:bg-zinc-700'
             : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
         >
-          ← {{ language === 'FR' ? 'Retour' : 'Back' }}
+          ← {{ props.language === 'FR' ? 'Retour' : 'Back' }}
         </button>
       </div>
 
-<!-- Subtitle on the next row -->
-<p :class="['max-w-3xl mb-6 sm:mb-8',
-            isDarkMode ? 'text-zinc-300' : 'text-zinc-700']">
-  {{ t('techSubtitle') }}
-</p>
-
-
-      
+      <!-- Subtitle -->
+      <p
+        :class="[
+          'max-w-3xl mb-6 sm:mb-8',
+          props.isDark ? 'text-zinc-300' : 'text-zinc-700'
+        ]"
+      >
+        {{ t('techSubtitle') }}
+      </p>
 
       <!-- Quick tags -->
       <div class="flex flex-wrap gap-2 sm:gap-3 mb-8">
-        <span class="px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">MBUX</span>
-        <span class="px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">ADAS</span>
-        <span class="px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">4MATIC</span>
-        <span class="px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">EQ</span>
-        <span class="px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">AMG</span>
-        <span class="px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-300/60 dark:border-white/20 text-zinc-700 dark:text-zinc-200">Connectivity</span>
+        <span
+          class="px-3 py-1 rounded-full text-xs sm:text-sm"
+          :class="props.isDark
+            ? 'border border-zinc-700 text-zinc-200'
+            : 'border border-zinc-300/60 text-zinc-700'"
+        >MBUX</span>
+        <span :class="chipCls">ADAS</span>
+        <span :class="chipCls">4MATIC</span>
+        <span :class="chipCls">EQ</span>
+        <span :class="chipCls">AMG</span>
+        <span :class="chipCls">Connectivity</span>
       </div>
     </section>
 
@@ -52,38 +66,36 @@
         <article
           v-for="(f, i) in features"
           :key="i"
-          :class="[
-            'rounded-2xl p-5 shadow-xl transition-all duration-200 group',
-            isDarkMode
-              ? 'bg-zinc-900/90 text-white hover:bg-gray-300 hover:text-black'
-              : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-gray-600 hover:text-white'
-          ]"
+          class="rounded-2xl p-5 shadow-xl transition-all duration-200 group"
+          :class="props.isDark
+            ? 'bg-zinc-900/90 text-white hover:bg-gray-300 hover:text-black border border-zinc-800'
+            : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-gray-100'"
         >
           <div class="text-4xl mb-3">{{ f.emoji }}</div>
           <h3 class="font-semibold text-lg mb-1">{{ f.title }}</h3>
-          <p :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-600', 'text-sm mb-4']">
+          <p :class="[ props.isDark ? 'text-zinc-300' : 'text-zinc-600', 'text-sm mb-4' ]">
             {{ f.desc }}
           </p>
 
           <!-- bullets -->
           <ul class="space-y-1.5 mb-4">
-            <li v-for="(b, j) in f.bullets" :key="j"
-                class="flex items-start gap-2 text-sm">
+            <li v-for="(b, j) in f.bullets" :key="j" class="flex items-start gap-2 text-sm">
               <span class="mt-0.5">•</span>
-              <span :class="isDarkMode ? 'text-zinc-200' : 'text-zinc-100 group-hover:text-white'">
+              <span :class="props.isDark ? 'text-zinc-200' : 'text-zinc-700'">
                 {{ b }}
               </span>
             </li>
           </ul>
 
           <!-- details -->
-          <details class="rounded-lg"
-                   :class="isDarkMode ? 'bg-black/20' : 'bg-white/40'">
-            <summary class="cursor-pointer px-3 py-2 rounded-lg text-sm font-semibold
-                            hover:underline select-none">
+          <details
+            class="rounded-lg"
+            :class="props.isDark ? 'bg-black/20' : 'bg-zinc-100'"
+          >
+            <summary class="cursor-pointer px-3 py-2 rounded-lg text-sm font-semibold hover:underline select-none">
               {{ t('learnMore') }}
             </summary>
-            <div :class="[isDarkMode ? 'text-zinc-200' : 'text-zinc-100 group-hover:text-white', 'text-sm px-3 py-2']">
+            <div :class="[ props.isDark ? 'text-zinc-200' : 'text-zinc-700', 'text-sm px-3 py-2' ]">
               {{ f.more }}
             </div>
           </details>
@@ -93,32 +105,32 @@
 
     <!-- CTA -->
     <section class="w-full max-w-6xl mx-auto px-3 sm:px-6 pb-16">
-      <div :class="[
-            'rounded-2xl p-6 sm:p-8 shadow-xl text-center',
-            isDarkMode ? 'bg-zinc-900/80 text-white' : 'bg-white text-zinc-800 border border-zinc-200'
-          ]">
+      <div
+        class="rounded-2xl p-6 sm:p-8 shadow-xl text-center"
+        :class="props.isDark
+          ? 'bg-zinc-900/80 text-white border border-zinc-800'
+          : 'bg-white text-zinc-800 border border-zinc-200'"
+      >
         <h2 class="text-xl sm:text-2xl font-bold mb-2">{{ t('ctaTitle') }}</h2>
-        <p :class="[isDarkMode ? 'text-zinc-300' : 'text-zinc-600', 'mb-6']">{{ t('ctaSubtitle') }}</p>
+        <p :class="[ props.isDark ? 'text-zinc-300' : 'text-zinc-600', 'mb-6' ]">
+          {{ t('ctaSubtitle') }}
+        </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
           <router-link
             to="/cars"
-            :class="[
-              'px-5 py-3 rounded-lg font-semibold transition-colors',
-              isDarkMode
-                ? 'bg-[#5d737e] text-white hover:bg-zinc-700'
-                : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'
-            ]"
+            class="px-5 py-3 rounded-lg font-semibold transition-colors"
+            :class="props.isDark
+              ? 'bg-[#5d737e] text-white hover:bg-zinc-700'
+              : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'"
           >
             {{ t('exploreModels') }}
           </router-link>
           <router-link
             to="/test-drive"
-            :class="[
-              'px-5 py-3 rounded-lg font-semibold transition-colors',
-              isDarkMode
-                ? 'bg-zinc-800 text-white hover:bg-zinc-700'
-                : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-200'
-            ]"
+            class="px-5 py-3 rounded-lg font-semibold transition-colors"
+            :class="props.isDark
+              ? 'bg-zinc-800 text-white hover:bg-zinc-700'
+              : 'bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-200'"
           >
             {{ t('bookTestDrive') }}
           </router-link>
@@ -129,58 +141,20 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, ref } from 'vue'
 
-/* ---- Router / Logout ---- */
-const router = useRouter()
-const logout = () => router.push('/login')
+/** Props exactly like ChatWidget: parent controls them */
+const props = defineProps({
+  language: { type: String,  default: 'FR' },
+  isDark:   { type: Boolean, default: false },
+})
+
+/** Emits */
 const emit = defineEmits(['navigate'])
 
-/* ---- Persistent preferences ---- */
-const isDarkMode = ref(localStorage.getItem('darkMode') === 'true')
-const language = ref(localStorage.getItem('lang') || 'FR')
-
-watch(isDarkMode, (val) => {
-  localStorage.setItem('darkMode', val)
-  val
-    ? document.documentElement.classList.add('dark')
-    : document.documentElement.classList.remove('dark')
-})
-watch(language, (val) => localStorage.setItem('lang', val))
-
-/* ---- Time & Date ---- */
-const time = ref('')
-const date = ref('')
-function updateDateTime() {
-  const now = new Date()
-  const locale = language.value === 'FR' ? 'fr-FR' : 'en-GB'
-  time.value = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-  date.value = now.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-}
-
-let intervalId
-onMounted(() => {
-  isDarkMode.value
-    ? document.documentElement.classList.add('dark')
-    : document.documentElement.classList.remove('dark')
-
-  updateDateTime()
-  intervalId = setInterval(updateDateTime, 1000)
-  window.addEventListener('keydown', onKey)
-})
-onUnmounted(() => {
-  clearInterval(intervalId)
-  window.removeEventListener('keydown', onKey)
-})
-
-/* ---- i18n (simple) ---- */
+/** i18n */
 const i18n = {
   FR: {
-    back: 'Retour',
-    logout: 'Déconnexion',
-    darkMode: 'Mode sombre',
-    lightMode: 'Mode clair',
     techTitle: 'Technologies Mercedes',
     techSubtitle: "Innovation, sécurité et connectivité au service d'une expérience de conduite unique.",
     learnMore: 'En savoir plus',
@@ -190,10 +164,6 @@ const i18n = {
     bookTestDrive: 'Demander un essai',
   },
   EN: {
-    back: 'Back',
-    logout: 'Logout',
-    darkMode: 'Dark mode',
-    lightMode: 'Light mode',
     techTitle: 'Mercedes Technologies',
     techSubtitle: 'Innovation, safety and connectivity for a remarkable driving experience.',
     learnMore: 'Learn more',
@@ -203,85 +173,41 @@ const i18n = {
     bookTestDrive: 'Book a Test Drive',
   }
 }
-const t = (k) => i18n[language.value][k] || k
+const t = (k) => (i18n[props.language] || i18n.FR)[k] || k
 
-/* ---- Theme toggle ---- */
-const toggleDarkMode = () => { isDarkMode.value = !isDarkMode.value }
+/** chip class helper (same pattern as ChatWidget) */
+const chipCls = computed(() =>
+  props.isDark
+    ? 'px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-700 text-zinc-200'
+    : 'px-3 py-1 rounded-full text-xs sm:text-sm border border-zinc-300/60 text-zinc-700'
+)
 
-/* ---- Small-screen menu state + ESC to close ---- */
-const menuOpen = ref(false)
-function onKey(e) {
-  if (e.key === 'Escape') menuOpen.value = false
-}
-
-/* ---- Feature content ---- */
+/** content */
 const features = ref([
-  {
-    emoji: '🧠',
-    title: 'MBUX & Voice',
+  { emoji: '🧠', title: 'MBUX & Voice',
     desc: 'Assistant vocal naturel, écrans haute résolution, navigation augmentée pour une interaction intuitive.',
-    bullets: [
-      'Commande vocale “Hey Mercedes”',
-      'Écrans tactiles & HUD',
-      'Navigation AR et suggestions proactives',
-    ],
-    more: 'MBUX s’adapte à vos habitudes : itinéraires favoris, confort, multimédia. L’interface évolue avec des mises à jour en ligne.'
-  },
-  {
-    emoji: '🛡️',
-    title: 'ADAS & Sécurité',
+    bullets: ['Commande vocale “Hey Mercedes”','Écrans tactiles & HUD','Navigation AR et suggestions proactives'],
+    more: 'MBUX s’adapte à vos habitudes : itinéraires favoris, confort, multimédia. L’interface évolue avec des mises à jour en ligne.' },
+  { emoji: '🛡️', title: 'ADAS & Sécurité',
     desc: 'Aides avancées à la conduite pour plus de sérénité au quotidien.',
-    bullets: [
-      'DISTRONIC (régulateur de distance)',
-      'PRE-SAFE et freinage d’urgence assisté',
-      'Maintien de voie & angle mort actif',
-    ],
-    more: 'Les systèmes ADAS surveillent l’environnement, avertissent et peuvent intervenir pour éviter ou atténuer un accident.'
-  },
-  {
-    emoji: '⚡',
-    title: 'EQ & Électrification',
+    bullets: ['DISTRONIC (régulateur de distance)','PRE-SAFE et freinage d’urgence assisté','Maintien de voie & angle mort actif'],
+    more: 'Les systèmes ADAS surveillent l’environnement, avertissent et peuvent intervenir pour éviter ou atténuer un accident.' },
+  { emoji: '⚡', title: 'EQ & Électrification',
     desc: 'Technologies EQ pour l’électrique et l’hybride rechargeable.',
-    bullets: [
-      'Gestion intelligente de l’énergie',
-      'Planification de charge sur itinéraire',
-      'Récupération d’énergie au freinage',
-    ],
-    more: 'Les modèles EQ optimisent performance et autonomie, avec infos de charge en temps réel et services connectés.'
-  },
-  {
-    emoji: '🧭',
-    title: '4MATIC',
+    bullets: ['Gestion intelligente de l’énergie','Planification de charge sur itinéraire','Récupération d’énergie au freinage'],
+    more: 'Les modèles EQ optimisent performance et autonomie, avec infos de charge en temps réel et services connectés.' },
+  { emoji: '🧭', title: '4MATIC',
     desc: 'Transmission intégrale intelligente pour une motricité optimale.',
-    bullets: [
-      'Répartition de couple adaptative',
-      'Adhérence améliorée route/pluie/neige',
-      'Conduite stable et dynamique',
-    ],
-    more: 'Le système 4MATIC gère en continu la motricité selon l’adhérence et le style de conduite pour plus de sécurité.'
-  },
-  {
-    emoji: '🏁',
-    title: 'AMG Performance',
+    bullets: ['Répartition de couple adaptative','Adhérence améliorée route/pluie/neige','Conduite stable et dynamique'],
+    more: 'Le système 4MATIC gère en continu la motricité selon l’adhérence et le style de conduite pour plus de sécurité.' },
+  { emoji: '🏁', title: 'AMG Performance',
     desc: 'Châssis, freins et modes de conduite calibrés pour la sportivité.',
-    bullets: [
-      'Modes Sport/Track configurables',
-      'Échappement et direction spécifiques',
-      'Freinage haute performance',
-    ],
-    more: 'Les modèles AMG offrent une réponse moteur/transmission et un comportement châssis taillés pour l’émotion.'
-  },
-  {
-    emoji: '📶',
-    title: 'Connectivité & Services',
+    bullets: ['Modes Sport/Track configurables','Échappement et direction spécifiques','Freinage haute performance'],
+    more: 'Les modèles AMG offrent une réponse moteur/transmission et un comportement châssis taillés pour l’émotion.' },
+  { emoji: '📶', title: 'Connectivité & Services',
     desc: 'App Mercedes me, mises à jour à distance et fonctions à la demande.',
-    bullets: [
-      'Contrôle à distance (verrouillage, clim)',
-      'OTA (Over-the-Air) & diagnostics',
-      'Intégration smartphone & CarPlay/Android Auto',
-    ],
-    more: 'La connectivité permet d’ajouter des options logicielles et de garder votre véhicule à jour dans le temps.'
-  },
+    bullets: ['Contrôle à distance (verrouillage, clim)','OTA (Over-the-Air) & diagnostics','Intégration smartphone & CarPlay/Android Auto'],
+    more: 'La connectivité permet d’ajouter des options logicielles et de garder votre véhicule à jour dans le temps.' },
 ])
 </script>
 

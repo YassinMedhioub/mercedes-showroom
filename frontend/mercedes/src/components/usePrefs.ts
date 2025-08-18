@@ -1,42 +1,42 @@
 // src/components/usePrefs.ts
-import { ref, watch } from 'vue'
+import { getCurrentInstance, onMounted, ref, watch } from 'vue'
 
-const g = globalThis as any
+const isDark = ref(localStorage.getItem('darkMode') === 'true')
+const lang = ref(localStorage.getItem('lang') || 'FR')
 
-if (!g.__PREFS__) {
-  const lang = ref(localStorage.getItem('lang') || 'FR')
-  const isDark = ref(localStorage.getItem('darkMode') === 'true')
-
-  // apply on load
-  document.documentElement.classList.toggle('dark', isDark.value)
-
-  // DEBUG: prove this singleton is created once
-  console.log('[usePrefs] created singleton at', import.meta.url)
-
-  watch(lang, v => {
-    console.log('[usePrefs] lang ->', v)                 // DEBUG on change
-    localStorage.setItem('lang', v)
-  })
-
-  watch(isDark, v => {
-    console.log('[usePrefs] isDark ->', v)               // DEBUG on change
-    localStorage.setItem('darkMode', String(v))
-    document.documentElement.classList.toggle('dark', v)
-  })
-
-  const toggleDark = () => (isDark.value = !isDark.value)
-
-  g.__PREFS__ = { lang, isDark, toggleDark }
-} else {
-  // If your app imports the module twice via different paths,
-  // you’ll still reuse the same singleton:
-  console.log('[usePrefs] reusing singleton at', import.meta.url)
+function applyDark(v: boolean) {
+  if (typeof document === 'undefined') return
+  document.documentElement.classList.toggle('dark', v)
 }
 
+function toggleDark() {
+  isDark.value = !isDark.value
+}
+
+let initialized = false
+
 export function usePrefs() {
-  return (globalThis as any).__PREFS__ as {
-    lang: ReturnType<typeof ref<string>>
-    isDark: ReturnType<typeof ref<boolean>>
-    toggleDark: () => void
+  // Only attach lifecycle once, from inside a component
+  if (getCurrentInstance() && !initialized) {
+    initialized = true
+
+    onMounted(() => {
+      // ensure correct class on first mount
+      applyDark(isDark.value)
+    })
+
+    // Run after DOM updates to avoid mid-patch mutations
+    watch(
+      isDark,
+      (v) => {
+        localStorage.setItem('darkMode', String(v))
+        applyDark(v)
+      },
+      { immediate: true, flush: 'post' }
+    )
+
+    watch(lang, (v) => localStorage.setItem('lang', v))
   }
+
+  return { isDark, lang, toggleDark }
 }

@@ -1,6 +1,6 @@
 <!-- src/components/FooterBar.vue -->
 <template>
-  <footer class="w-full bg-black mt-4">
+  <footer class="w-full bg-black">
     <img v-if="isDark" src="../assets/footer.png" alt="Mercedes-Benz Brands" class="block w-full object-contain" />
     <img v-else   src="../assets/footer-inverted.png" alt="Mercedes-Benz Brands" class="block w-full object-contain" />
     <hr>
@@ -15,6 +15,6 @@
 </template>
 
 <script setup>
-import { usePrefs } from './usePrefs'
+import { usePrefs } from './usePrefs';
 const { isDark } = usePrefs()
 </script>
