@@ -179,7 +179,7 @@ async function askLLM(userText) {
   const lang = (props.language || 'FR').toUpperCase() === 'FR' ? 'fr' : 'en'
 
   // IMPORTANT: use the relative path so Vite forwards to 8787
-  const res = await fetch('/api/chat', {
+  const res = await fetch('/api/ai/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

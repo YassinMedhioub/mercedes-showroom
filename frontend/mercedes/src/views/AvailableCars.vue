@@ -35,12 +35,19 @@
           ? 'bg-zinc-900/90 text-white border border-zinc-800 hover:bg-gray-300 hover:text-black'
           : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-zinc-100'"
       >
-        <img :src="car.image" :alt="car.model" class="mb-4 rounded-xl w-full h-44 object-cover shadow-md bg-white" />
+        <!-- Main car image -->
+        <img
+          :src="getMainImage(car)"
+          :alt="car.model"
+          class="mb-4 rounded-xl w-full h-44 object-cover shadow-md bg-white"
+        />
+
         <div class="font-semibold text-lg sm:text-xl mb-1">{{ car.model }}</div>
-        <div class="text-sm mb-2" :class="props.isDark ? 'text-zinc-300' : 'text-zinc-600'">{{ car.type }}</div>
+        <div class="text-sm mb-2" :class="props.isDark ? 'text-zinc-300' : 'text-zinc-600'">
+          {{ car.type }}
+        </div>
         <div class="font-bold text-lg mb-4">{{ car.price }} DT</div>
 
-        <!-- action button (stops the card click from firing again) -->
         <button
           @click.stop="openDetails(car.id)"
           class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
@@ -56,44 +63,47 @@
 </template>
 
 <script setup>
-/* Props from parent (same as ChatWidget) */
+import { onMounted, ref } from 'vue'
+
+/* Props */
 const props = defineProps({
   isDark: { type: Boolean, default: false },
   language: { type: String, default: 'FR' },
 })
-
-/* Emits */
 const emit = defineEmits(['navigate'])
 
-/* Images */
-import { default as aClassAmgLine, default as amgGt } from '@/assets/cars/amg_gt.png'
-import c200 from '@/assets/cars/C200.png'
-import gla200d from '@/assets/cars/GLA200D.png'
-import gleS63 from '@/assets/cars/GLES63.avif'
-import sClass2012 from '@/assets/cars/Sclass2012.png'
+/* Cars */
+const cars = ref([])
 
-/* i18n */
-const i18n = {
-  FR: { availableCars: 'Voitures Disponibles', details: 'Voir détails' },
-  EN: { availableCars: 'Available Cars',       details: 'See details'  },
-}
-const t = (k) => (i18n[props.language] || i18n.FR)[k] || k
+onMounted(async () => {
+  try {
+    const token = localStorage.getItem('authToken')
+    const res = await fetch('http://localhost:8080/api/cars', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
 
-/* Cars data */
-const cars = [
-  { id: 1, model: 'Classe S 2012',                       type: 'Berline de Luxe',   price: '110 900', image: sClass2012 },
-  { id: 2, model: 'Classe A 200 d AMG Line',             type: 'Citadine Compacte', price: '159 200', image: aClassAmgLine },
-  { id: 3, model: 'Mercedes Benz GLE S 63 4MATIC Coupé', type: 'SUV',               price: '240 500', image: gleS63 },
-  { id: 4, model: 'Mercedes AMG GT',                     type: 'Sports Car',        price: '170 000', image: amgGt },
-  { id: 5, model: 'Classe C 200 Avantgarde',             type: 'Break',             price: '110 000', image: c200 },
-  { id: 6, model: 'GLA 200 D',                           type: 'SUV Coupé',         price: '92 400',  image: gla200d },
-]
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    cars.value = await res.json()
+  } catch (err) {
+    console.error('Failed to fetch cars:', err)
+  }
+})
 
-/* Navigation helpers */
+/* Helpers */
 function openDetails(id) {
   emit('navigate', { page: 'car', id })
 }
 function goHome() {
   emit('navigate', { page: 'dashboard' })
 }
+function getMainImage(car) {
+  return car.images?.find(img => img.main)?.imageUrl || '/fallback.jpg'
+}
+
+/* i18n */
+const i18n = {
+  FR: { availableCars: 'Voitures Disponibles', details: 'Voir détails' },
+  EN: { availableCars: 'Available Cars', details: 'See details' },
+}
+const t = (k) => (i18n[props.language] || i18n.FR)[k] || k
 </script>

@@ -5,6 +5,11 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     proxy: {
+      '^/api/chat': {
+        target: 'http://localhost:8787',
+        changeOrigin: true,
+        secure: false,
+      },
       '^/api/ai': {
         target: 'http://localhost:8787',
         changeOrigin: true,
@@ -14,8 +19,8 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
-        // ⛔️ No rewrite — backend routes are /api/...
       },
     },
   },
+
 })

@@ -44,7 +44,7 @@ function logError(tag, e) {
 
 // ---------- chat ----------
 // server-groq.js
-app.post('/api/chat', async (req, res) => {
+app.post('/api/ai/chat', async (req, res) => {
     try {
         const { messages, language = 'en' } = req.body || {}
 

@@ -213,37 +213,38 @@ async function handleLogin() {
 
   loading.value = true
   try {
-    const { data } = await axios.post(
-      LOGIN_URL,
-      { username: username.value, password: password.value },
-      { headers: { 'Content-Type': 'application/json' }, timeout: 15000 }
-    )
+  const { data } = await axios.post(
+    LOGIN_URL,
+    { username: username.value, password: password.value },
+    { headers: { 'Content-Type': 'application/json' }, timeout: 15000 }
+  )
 
-    // Expecting { token, role, name? }
-    const token = data?.token
-    const role  = data?.role || 'USER'
-    const nameFromApi =
-      data?.name || data?.fullName || data?.user?.name || data?.username
-    const resolvedName = (nameFromApi || username.value).trim()
+  console.log("DEBUG LOGIN RESPONSE:", data)
 
-    localStorage.setItem('isLoggedIn', 'true')
-    localStorage.setItem('role', role)
-    localStorage.setItem('adminName', resolvedName)     // ✅ store display name
-    if (remember.value) localStorage.setItem('username', username.value)
-    if (token) localStorage.setItem('authToken', token)
+  const token = data?.token
+  const roles = data?.roles || []
+  const role  = roles.includes("ADMIN") ? "ADMIN" : "USER"
 
-    const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
-    localStorage.setItem('currentPage', landing)
+  const nameFromApi =
+    data?.name || data?.fullName || data?.user?.name || data?.username
+  const resolvedName = (nameFromApi || username.value).trim()
 
-    // hand control to AppShell (no URL change) + send the name
-    emit('login', { role, fullName: resolvedName, username: username.value })
-  } catch (e) {
-    error.value = language.value === 'FR'
-      ? 'Identifiants incorrects ou serveur indisponible'
-      : 'Invalid credentials or server unreachable'
-  } finally {
-    loading.value = false
-  }
+  localStorage.setItem('isLoggedIn', 'true')
+  localStorage.setItem('role', role)
+  localStorage.setItem('adminName', resolvedName)
+  if (remember.value) localStorage.setItem('username', username.value)
+  if (token) localStorage.setItem('authToken', token)
+
+  const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
+  localStorage.setItem('currentPage', landing)
+
+  emit('login', { role, fullName: resolvedName, username: username.value })
+} catch (e) {
+  error.value = language.value === 'FR'
+    ? 'Identifiants incorrects ou serveur indisponible'
+    : 'Invalid credentials or server unreachable'
+}
+
 }
 </script>
 
