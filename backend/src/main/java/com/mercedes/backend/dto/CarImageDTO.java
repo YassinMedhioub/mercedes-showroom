@@ -1,4 +1,3 @@
-// CarImageDTO.java
 package com.mercedes.backend.dto;
 
 public class CarImageDTO {

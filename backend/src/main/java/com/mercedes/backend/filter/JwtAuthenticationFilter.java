@@ -51,24 +51,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
 
             if (jwtService.validateToken(jwt, userDetails)) {
-                // ✅ use getRoles instead of getRole
                 List<String> roles = jwtService.getRoles(jwt);
+
+                System.out.println("🔑 Username from token: " + username);
+                System.out.println("🎭 Roles from JWT: " + roles);
+
+                var authorities = roles.stream()
+                        .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+                authorities.forEach(a -> System.out.println("✅ Granted authority: " + a.getAuthority()));
 
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
-                                roles.stream()
-                                        .map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
-                                        .map(SimpleGrantedAuthority::new)
-                                        .toList()
+                                authorities
                         );
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
+
         }
 
         filterChain.doFilter(request, response);
     }
+
+
 }

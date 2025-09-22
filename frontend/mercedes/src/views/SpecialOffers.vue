@@ -1,3 +1,4 @@
+
 <template>
   <div
     :class="[
@@ -12,24 +13,24 @@
       <div class="w-full max-w-6xl mx-auto px-3 sm:px-6 mb-2 flex items-center justify-between">
         <!-- Title -->
         <h1 class="font-extrabold leading-tight text-3xl sm:text-4xl text-current">
-          {{ texts[props.language].pageTitle }}
+          {{ t('pageTitle') }}
         </h1>
 
         <!-- Back -->
         <button
-          @click="emit('navigate','dashboard')"
+          @click="router.push('/dashboard')"
           class="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
           :class="props.isDark
             ? 'bg-zinc-800 text-white hover:bg-zinc-700'
             : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
         >
-          ← {{ props.language === 'FR' ? 'Retour' : 'Back' }}
+          ← {{ t('back') }}
         </button>
       </div>
 
       <!-- Subtitle -->
       <p class="max-w-3xl mb-6 sm:mb-8" :class="props.isDark ? 'text-zinc-300' : 'text-zinc-700'">
-        {{ texts[props.language].intro }}
+        {{ t('intro') }}
       </p>
 
       <!-- Offers -->
@@ -53,12 +54,13 @@
             <div class="flex items-center justify-between mt-auto">
               <span class="text-lg font-bold text-[#5d737e]">{{ offer.price }}</span>
               <button
+                @click="viewOffer(offer)"
                 class="px-3 py-1 rounded-lg text-sm font-semibold transition-colors"
                 :class="props.isDark
                   ? 'bg-[#5d737e] text-white hover:bg-zinc-700'
                   : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'"
               >
-                {{ texts[props.language].learnMore }}
+                {{ t('learnMore') }}
               </button>
             </div>
           </div>
@@ -69,53 +71,63 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from '../composables/useI18n'
+import { fetchSpecialOffers } from '../services/api'
 
-/* Parent controls theme & language (same as ChatWidget) */
+/* Props */
 const props = defineProps({
   isDark: { type: Boolean, default: false },
   language: { type: String, default: 'FR' },
 })
 
-const emit = defineEmits(['navigate'])
+const router = useRouter()
+const { t } = useI18n()
 
-const texts = {
-  FR: {
-    title: 'Mon espace',
-    pageTitle: 'Offres Spéciales',
-    intro: 'Découvrez nos offres spéciales disponibles uniquement en showroom.',
-    learnMore: 'Voir plus',
-  },
-  EN: {
-    title: 'My Space',
-    pageTitle: 'Special Offers',
-    intro: 'Discover our exclusive showroom offers available for a limited time.',
-    learnMore: 'Learn more',
-  },
+const offers = ref([])
+const loading = ref(false)
+
+/* Fetch offers on mount */
+onMounted(async () => {
+  try {
+    loading.value = true
+    offers.value = await fetchSpecialOffers()
+  } catch (error) {
+    console.error('Failed to fetch special offers:', error)
+    // Fallback data
+    offers.value = [
+      {
+        id: 1,
+        title: t('classecTitle'),
+        description: t('classecDesc'),
+        price: '54 900 DT',
+        image: '/src/assets/offers/classec.jpg',
+      },
+      {
+        id: 2,
+        title: t('glecoupeTitle'),
+        description: t('glecoupeDesc'),
+        price: '210 000 DT',
+        image: '/src/assets/offers/glecoupe.jpg',
+      },
+      {
+        id: 3,
+        title: t('aclassTitle'),
+        description: t('aclassDesc'),
+        price: '89 000 DT',
+        image: '/src/assets/offers/aclass.jpg',
+      }
+    ]
+  } finally {
+    loading.value = false
+  }
+})
+
+/* Handle offer click */
+const viewOffer = (offer) => {
+  // Navigate to offer details or open modal
+  alert(`${t('viewOffer')}: ${offer.title}\n${offer.description}\n${offer.price}`)
+  // Or router.push(`/offers/${offer.id}`)
 }
-
-/* Offers data (keep your paths or import assets if you prefer) */
-const offers = ref([
-  {
-    id: 1,
-    title: 'Mercedes Classe C - Edition Limitée',
-    description: "Profitez d'une remise exceptionnelle sur la Classe C avec pack AMG.",
-    price: '54 900 DT',
-    image: '/src/assets/offers/classec.jpg',
-  },
-  {
-    id: 2,
-    title: 'GLE Coupé - Pack Luxe',
-    description: 'Économisez sur le SUV coupé sportif avec options haut de gamme.',
-    price: '210 000 DT',
-    image: '/src/assets/offers/glecoupe.jpg',
-  },
-  {
-    id: 3,
-    title: 'A-Class Sport',
-    description: 'Offre spéciale sur la citadine premium avec intérieur cuir.',
-    price: '89 000 DT',
-    image: '/src/assets/offers/aclass.jpg',
-  },
-])
 </script>

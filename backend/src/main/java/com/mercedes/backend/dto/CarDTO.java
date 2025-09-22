@@ -1,7 +1,5 @@
-// CarDTO.java
 package com.mercedes.backend.dto;
 
-import com.mercedes.backend.dto.CarImageDTO;
 
 import java.util.List;
 

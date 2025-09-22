@@ -1,3 +1,4 @@
+
 <template>
   <div :class="[
       { dark: isDark },
@@ -9,16 +10,14 @@
       'flex','flex-col', 
     ]">
 
-
-
     <!-- MAIN (cards only) -->
     <main class="flex-1 w-full">
       <section class="flex flex-col items-center justify-center py-8 sm:py-12 w-full">
         <h1 :class="['mb-4 font-bold text-2xl sm:text-3xl', isDark ? 'text-white' : 'text-zinc-800']">
-          {{ texts[language].welcome }}
+          {{ t('welcome') }}
         </h1>
         <p :class="['mb-8', isDark ? 'text-zinc-300' : 'text-zinc-600', 'text-sm sm:text-base']">
-          {{ texts[language].intro }}
+          {{ t('intro') }}
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full max-w-5xl px-2 sm:px-4 md:px-8">
@@ -50,23 +49,27 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { usePrefs } from '../components/usePrefs'
-
+import { useI18n } from '../composables/useI18n'
 
 /* Global prefs (single source of truth) */
-const { lang, isDark, toggleDark } = usePrefs()
-const language = lang
+const { isDark } = usePrefs()
+const { t } = useI18n()
 
-/* Emit to parent (AppShell) */
-const emit = defineEmits(['logout','navigate'])
+/* Services */
+const router = useRouter()
+
+/* Emit to parent (App.vue) */
+const emit = defineEmits(['logout', 'navigate'])
 
 /* Date & time reactive to language */
 const time = ref('')
 const date = ref('')
 function updateDateTime() {
   const now = new Date()
-  const loc = language.value === 'FR' ? 'fr-FR' : 'en-GB'
+  const loc = t('dateLocale') === 'FR' ? 'fr-FR' : 'en-GB'
   time.value = now.toLocaleTimeString(loc, { hour:'2-digit', minute:'2-digit', second:'2-digit' })
   date.value = now.toLocaleDateString(loc, { weekday:'long', year:'numeric', month:'long', day:'numeric' })
 }
@@ -76,57 +79,40 @@ onMounted(() => {
   intervalId = setInterval(updateDateTime, 1000)
 })
 onUnmounted(() => clearInterval(intervalId))
-watch(language, updateDateTime)
 
-/* i18n */
-const texts = {
-  FR: {
-    title: "Mon espace",
-    welcome: "Bienvenue, Cher Visiteur",
-    intro: "Retrouvez ici les services et informations de votre showroom.",
-    logout: "Déconnexion",
-    lightMode: "Mode clair",
-    darkMode: "Mode sombre",
-    models: "Découvrir nos modèles",
-    modelsDesc: "Gamme, nouveautés, prix",
-    tech: "Technologies Mercedes",
-    techDesc: "Innovation, sécurité, connectivité",
-    testDrive: "Demander un essai",
-    testDriveDesc: "Réservez un essai sur route",
-    advisor: "Rencontrer un conseiller",
-    advisorDesc: "Prenez rendez-vous aujourd'hui",
-    offers: "Offres spéciales",
-    offersDesc: "Promotions et avantages en showroom"
-  },
-  EN: {
-    title: "My Space",
-    welcome: "Welcome, Dear Visitor",
-    intro: "Find here your showroom services and information.",
-    logout: "Logout",
-    lightMode: "Light mode",
-    darkMode: "Dark mode",
-    models: "Explore Our Models",
-    modelsDesc: "Range, new arrivals, prices",
-    tech: "Mercedes Technologies",
-    techDesc: "Innovation, safety, connectivity",
-    testDrive: "Book a Test Drive",
-    testDriveDesc: "Reserve a road test",
-    advisor: "Meet an Advisor",
-    advisorDesc: "Book an appointment today",
-    offers: "Special Offers",
-    offersDesc: "Showroom promotions and advantages"
-  }
-}
-/* Cards → emit to AppShell (no internal routing here) */
+/* Cards → navigate with router */
 const cardList = computed(() => [
-  { emoji: "🚗", title: texts[language.value].models,      desc: texts[language.value].modelsDesc,   action: () => emit('navigate','cars') },
-  { emoji: "💡", title: texts[language.value].tech,        desc: texts[language.value].techDesc,     action: () => emit('navigate','techs') },
-  { emoji: "📝", title: texts[language.value].testDrive,   desc: texts[language.value].testDriveDesc,action: () => emit('navigate','driveBook') },
-  { emoji: "📅", title: texts[language.value].advisor,     desc: texts[language.value].advisorDesc,  action: () => emit('navigate','meetAdvisor') },
-  { emoji: "🎁", title: texts[language.value].offers,      desc: texts[language.value].offersDesc,   action: () => emit('navigate','offers') },
+  { 
+    emoji: "🚗", 
+    title: t('models'), 
+    desc: t('modelsDesc'), 
+    action: () => router.push('/cars') 
+  },
+  { 
+    emoji: "💡", 
+    title: t('tech'), 
+    desc: t('techDesc'), 
+    action: () => router.push('/techs') 
+  },
+  { 
+    emoji: "📝", 
+    title: t('testDrive'), 
+    desc: t('testDriveDesc'), 
+    action: () => router.push('/driveBook') 
+  },
+  { 
+    emoji: "📅", 
+    title: t('advisor'), 
+    desc: t('advisorDesc'), 
+    action: () => router.push('/advisor') 
+  },
+  { 
+    emoji: "🎁", 
+    title: t('offers'), 
+    desc: t('offersDesc'), 
+    action: () => router.push('/offers') 
+  },
 ])
-
-
 
 /* Expose isDark for template (alias) */
 const isDarkMode = isDark

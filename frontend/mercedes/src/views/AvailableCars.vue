@@ -14,7 +14,7 @@
       </h1>
 
       <button
-        @click="goHome"
+        @click="router.push('/dashboard')"
         class="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
         :class="props.isDark
           ? 'bg-zinc-800 text-white hover:bg-zinc-700'
@@ -29,7 +29,7 @@
       <div
         v-for="car in cars"
         :key="car.id"
-        @click="openDetails(car.id)"
+        @click="handleCarClick(car)"
         class="rounded-2xl p-4 sm:p-6 shadow-xl flex flex-col items-center transition-all duration-200 group cursor-pointer hover:scale-[1.02]"
         :class="props.isDark
           ? 'bg-zinc-900/90 text-white border border-zinc-800 hover:bg-gray-300 hover:text-black'
@@ -49,7 +49,7 @@
         <div class="font-bold text-lg mb-4">{{ car.price }} DT</div>
 
         <button
-          @click.stop="openDetails(car.id)"
+          @click.stop="handleCarClick(car)"
           class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
           :class="props.isDark
             ? 'bg-[#5d737e] text-white hover:bg-zinc-700'
@@ -64,46 +64,47 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from '../composables/useI18n'
+import { fetchCars } from '../services/api'
 
 /* Props */
 const props = defineProps({
   isDark: { type: Boolean, default: false },
   language: { type: String, default: 'FR' },
 })
-const emit = defineEmits(['navigate'])
+
+const router = useRouter()
+const { t } = useI18n()
 
 /* Cars */
 const cars = ref([])
 
 onMounted(async () => {
   try {
-    const token = localStorage.getItem('authToken')
-    const res = await fetch('http://localhost:8080/api/cars', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    cars.value = await res.json()
+    cars.value = await fetchCars()
+    console.log('🚗 Cars loaded:', cars.value.map(car => ({ id: car.id, model: car.model })))
   } catch (err) {
     console.error('Failed to fetch cars:', err)
   }
 })
 
+/* Navigation handler */
+function handleCarClick(car) {
+  console.log('🚗 Car clicked:', car.id, car.model)
+  console.log('📍 Current route:', router.currentRoute.value.path)
+  console.log('🔗 Router instance:', router)
+  
+  try {
+    console.log('➡️ Attempting navigation to:', `/car/${car.id}`)
+    router.push(`/car/${car.id}`)
+  } catch (error) {
+    console.error('❌ Navigation error:', error)
+  }
+}
+
 /* Helpers */
-function openDetails(id) {
-  emit('navigate', { page: 'car', id })
-}
-function goHome() {
-  emit('navigate', { page: 'dashboard' })
-}
 function getMainImage(car) {
   return car.images?.find(img => img.main)?.imageUrl || '/fallback.jpg'
 }
-
-/* i18n */
-const i18n = {
-  FR: { availableCars: 'Voitures Disponibles', details: 'Voir détails' },
-  EN: { availableCars: 'Available Cars', details: 'See details' },
-}
-const t = (k) => (i18n[props.language] || i18n.FR)[k] || k
 </script>

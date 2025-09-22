@@ -1,4 +1,3 @@
-<!-- src/components/HeaderBar.vue -->
 <template>
   <header
     :class="[
@@ -6,7 +5,7 @@
       'min-h-[var(--appbar)] [--appbar:3.75rem] sm:[--appbar:4.5rem] lg:[--appbar:5rem]',
       'flex items-center justify-between p-5 flex-wrap gap-y-2 border-b',
       isDark
-        ? '!bg-black/80 !border-zinc-800 !text-white'
+        ? '!bg-black !border-zinc-800 !text-white'
         : '!bg-white/90 !border-zinc-200 !text-zinc-900'
     ]"
   >
@@ -59,10 +58,10 @@
         </span>
       </label>
 
-      <!-- Time + Date -->
-      <div class="text-right mr-2 sm:mr-4">
-        <div class="text-sm font-mono text-zinc-700 dark:text-zinc-200">{{ time }}</div>
-        <div class="text-xs font-light text-zinc-500 dark:text-zinc-400">{{ date }}</div>
+      <!-- Time + Date - 👇 FIXED: Proper color classes -->
+      <div class="text-right mr-2 sm:mr-4" :class="isDark ? 'text-white' : 'text-zinc-900'">
+        <div class="text-sm font-mono">{{ time }}</div>
+        <div class="text-xs font-light">{{ date }}</div>
       </div>
 
       <!-- Logout -->
@@ -98,7 +97,8 @@ const { lang, isDark, toggleDark } = usePrefs()
 const language = lang
 
 /** Time/Date */
-const time = ref(''); const date = ref('')
+const time = ref(''); 
+const date = ref('')
 function tick() {
   const now = new Date()
   const loc = language.value === 'FR' ? 'fr-FR' : 'en-GB'

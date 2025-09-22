@@ -1,3 +1,4 @@
+
 <template>
   <!-- FULL-WIDTH BACKGROUND -->
   <div
@@ -8,6 +9,7 @@
         : 'from-[#f6f7fb] via-[#f1f2f6] to-[#e7eaef] text-zinc-900'
     ]"
   >
+  <br>
     <!-- BOXED CONTENT -->
     <main
       class="mx-auto w-full px-4 sm:px-6 py-8 max-w-[62rem] xl:max-w-[70rem] pt-[var(--appbar)] sm:pt-[calc(var(--appbar)+0.5rem)]"
@@ -31,7 +33,7 @@
 
         <div class="flex items-center gap-2">
           <button
-            @click="emit('navigate','adminDashboard')"
+            @click="router.push('/admin')"
             class="inline-flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium transition-colors"
             :class="props.isDark
               ? 'bg-zinc-800 text-white hover:bg-zinc-700'
@@ -222,7 +224,7 @@
                 </button>
 
                 <button
-                  @click="resetPassword(u)"
+                  @click="openPassword(u)"
                   class="px-2 py-1 rounded border text-xs"
                   :class="props.isDark ? 'border-zinc-700 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'"
                 >
@@ -277,12 +279,15 @@
           :class="props.isDark ? 'bg-zinc-900/95 text-white border border-zinc-800' : 'bg-white text-zinc-800'"
         >
           <div class="flex items-center justify-between mb-3">
-            <div class="text-lg font-semibold">{{ form.id ? t('editUser') : t('createUser') }}</div>
+            <div class="text-lg font-semibold">
+              {{ formMode==='create' ? t('createUser') : formMode==='edit' ? t('editUser') : t('resetPwd') }}
+            </div>
             <button @click="closeForm" class="text-sm opacity-70 hover:opacity-100">✕</button>
           </div>
 
           <form @submit.prevent="saveUser" class="space-y-3">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- User details (skip if reset password) -->
+            <div v-if="formMode !== 'reset'" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs mb-1 opacity-70">{{ t('username') }}</label>
                 <input
@@ -292,6 +297,7 @@
                   :class="props.isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-300'"
                 />
               </div>
+
               <div>
                 <label class="block text-xs mb-1 opacity-70">{{ t('email') }}</label>
                 <input
@@ -319,19 +325,21 @@
                 <input type="checkbox" v-model="form.active" />
                 <span>{{ t('active') }}</span>
               </label>
-
-              <div v-if="!form.id" class="sm:col-span-2">
-                <label class="block text-xs mb-1 opacity-70">{{ t('password') }}</label>
-                <input
-                  v-model.trim="form.password"
-                  :placeholder="t('passwordPH')"
-                  required
-                  class="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
-                  :class="props.isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-300'"
-                />
-              </div>
             </div>
 
+            <!-- Password field (create or reset) -->
+            <div v-if="formMode==='create' || formMode==='reset'" class="sm:col-span-2">
+              <label class="block text-xs mb-1 opacity-70">{{ t('password') }}</label>
+              <input
+                v-model.trim="form.password"
+                :placeholder="t('passwordPH')"
+                required
+                class="w-full px-3 py-2 rounded-lg text-sm focus:outline-none"
+                :class="props.isDark ? 'bg-zinc-800 border border-zinc-700' : 'bg-white border border-zinc-300'"
+              />
+            </div>
+
+            <!-- Footer buttons -->
             <div class="flex items-center justify-end gap-2 pt-2">
               <button
                 type="button"
@@ -347,12 +355,13 @@
                 class="px-3 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
                 :class="props.isDark ? 'bg-[#5d737e] text-white hover:bg-zinc-700' : 'bg-[#e6eaf1] text-zinc-700 hover:bg-zinc-300 border border-zinc-200'"
               >
-                {{ form.id ? t('save') : t('create') }}
+                {{ formMode==='create' ? t('create') : formMode==='edit' ? t('save') : t('resetPwd') }}
               </button>
             </div>
 
             <p v-if="formErr" class="text-red-400 text-sm mt-1">{{ formErr }}</p>
           </form>
+
         </div>
       </div>
     </transition>
@@ -392,31 +401,12 @@
 </template>
 
 <script setup>
-import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from '../composables/useI18n'
+import { createUser, deleteUser, fetchUsers as fetchUsersApi, resetUserPassword, toggleUserStatus, updateUser } from '../services/api'
 
 const emit = defineEmits(['navigate'])
-
-/* Axios instance pinned to /api (or VITE_API_BASE) */
-const API = axios.create({
-  baseURL: (import.meta.env.VITE_API_BASE || '/api').replace(/\/+$/, ''),
-})
-API.interceptors.request.use((cfg) => {
-  const tok = localStorage.getItem('authToken')
-  if (tok) cfg.headers.Authorization = `Bearer ${tok}`
-  return cfg
-})
-API.interceptors.response.use(
-  r => r,
-  err => {
-    const s = err?.response?.status
-    if (s === 401 || s === 403) {
-      alert('Your session expired or you are not authorized.')
-      emit('navigate', 'login')
-    }
-    return Promise.reject(err)
-  }
-)
 
 /* Props */
 const props = defineProps({
@@ -424,84 +414,9 @@ const props = defineProps({
   language: { type: String, default: 'FR' },
 })
 
-/* i18n */
-const i18n = {
-  FR: {
-    title: 'Gestion Utilisateurs',
-    subtitle: 'Ajoutez, modifiez, désactivez des comptes.',
-    back: 'Retour',
-    newUser: 'Nouvel utilisateur',
-    searchPH: 'Rechercher (nom, email)…',
-    search: 'Rechercher',
-    reset: 'Réinitialiser',
-    pageSize: 'Par page',
-    pageAll: 'Tout',
-    refresh: 'Actualiser',
-    user: 'Utilisateur',
-    email: 'Email',
-    role: 'Rôle',
-    status: 'Statut',
-    created: 'Créé le',
-    showing: 'Affichage',
-    of: 'sur',
-    loading: 'Chargement…',
-    empty: 'Aucun utilisateur',
-    emptyHint: 'Ajoutez votre premier utilisateur pour commencer.',
-    active: 'Actif',
-    inactive: 'Inactif',
-    edit: 'Modifier',
-    resetPwd: 'Réinit. MDP',
-    delete: 'Supprimer',
-    editUser: 'Modifier l’utilisateur',
-    createUser: 'Créer un utilisateur',
-    username: "Nom d'utilisateur",
-    password: 'Mot de passe',
-    passwordPH: 'Choisir un mot de passe',
-    cancel: 'Annuler',
-    save: 'Enregistrer',
-    create: 'Créer',
-    confirmTitle: 'Confirmation',
-    confirmText: 'Supprimer définitivement',
-  },
-  EN: {
-    title: 'User Management',
-    subtitle: 'Create, edit and disable accounts.',
-    back: 'Back',
-    newUser: 'New user',
-    searchPH: 'Search (name, email)…',
-    search: 'Search',
-    reset: 'Reset',
-    pageSize: 'Per page',
-    pageAll: 'All',
-    refresh: 'Refresh',
-    user: 'User',
-    email: 'Email',
-    role: 'Role',
-    status: 'Status',
-    created: 'Created',
-    showing: 'Showing',
-    of: 'of',
-    loading: 'Loading…',
-    empty: 'No users',
-    emptyHint: 'Add your first user to get started.',
-    active: 'Active',
-    inactive: 'Inactive',
-    edit: 'Edit',
-    resetPwd: 'Reset PW',
-    delete: 'Delete',
-    editUser: 'Edit user',
-    createUser: 'Create user',
-    username: 'Username',
-    password: 'Password',
-    passwordPH: 'Choose a password',
-    cancel: 'Cancel',
-    save: 'Save',
-    create: 'Create',
-    confirmTitle: 'Confirmation',
-    confirmText: 'Permanently delete',
-  }
-}
-const t = (k) => (i18n[props.language] || i18n.FR)[k] ?? k
+/* Services */
+const router = useRouter()
+const { t } = useI18n()
 
 /* list state */
 const q = ref('')
@@ -519,6 +434,7 @@ const to   = computed(() => isAll.value ? users.value.length : Math.min(page.val
 /* form state */
 const showForm = ref(false)
 const form = ref({ id: null, username: '', email: '', role: 'USER', active: true, password: '' })
+const formMode = ref('create') 
 const formErr = ref('')
 const saving = ref(false)
 const toDelete = ref(null)
@@ -528,6 +444,7 @@ function initials(name = '') {
   const parts = name.trim().split(/\s+/).slice(0, 2)
   return parts.map(s => s[0]?.toUpperCase() ?? '').join('') || 'U'
 }
+
 function formatDate(d) {
   if (!d) return '—'
   const dd = new Date(d)
@@ -547,20 +464,15 @@ async function fetchUsers(target = page.value) {
       return
     }
 
-    const { data } = await API.get('/users', {
-      params: { q: q.value || undefined, page: page.value, size: Number(size.value) },
+    const { users: items, total: totalCount } = await fetchUsersApi({ 
+      search: q.value || undefined, 
+      page: page.value, 
+      size: Number(size.value) 
     })
-
-    const items =
-      Array.isArray(data?.items) ? data.items :
-      Array.isArray(data?.content) ? data.content :
-      Array.isArray(data) ? data : []
-
+    
+    console.log('Fetched users:', items)
     users.value = items
-    total.value =
-      Number.isFinite(data?.total) ? data.total :
-      Number.isFinite(data?.totalElements) ? data.totalElements :
-      items.length
+    total.value = totalCount || items.length
   } catch (e) {
     console.error('fetchUsers error', e)
     users.value = []
@@ -572,38 +484,15 @@ async function fetchUsers(target = page.value) {
 
 /* fetch absolutely all users across pages */
 async function fetchAllUsers() {
-  const STEP = 100
-  let p = 1
-  const all = []
-  let knownTotal = 0
-
-  // best-effort loop that works for {items,total}, {content,totalElements}, or array
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const { data } = await API.get('/users', {
-      params: { q: q.value || undefined, page: p, size: STEP },
-    })
-    const batch =
-      Array.isArray(data?.items) ? data.items :
-      Array.isArray(data?.content) ? data.content :
-      Array.isArray(data) ? data : []
-
-    if (p === 1) {
-      knownTotal =
-        Number.isFinite(data?.total) ? data.total :
-        Number.isFinite(data?.totalElements) ? data.totalElements :
-        0
-    }
-
-    all.push(...batch)
-
-    if (batch.length < STEP) break
-    if (knownTotal && all.length >= knownTotal) break
-    p++
+  try {
+    const allUsers = await fetchUsersApi({ search: q.value || undefined, size: 'ALL' })
+    users.value = allUsers.users || allUsers
+    total.value = allUsers.total || allUsers.length
+  } catch (e) {
+    console.error('fetchAllUsers error', e)
+    users.value = []
+    total.value = 0
   }
-
-  users.value = all
-  total.value = all.length
 }
 
 function resetFilters() {
@@ -615,33 +504,68 @@ function resetFilters() {
 function openCreate() {
   form.value = { id: null, username: '', email: '', role: 'USER', active: true, password: '' }
   formErr.value = ''
+  formMode.value = 'create'
   showForm.value = true
 }
+
 function openEdit(u) {
-  form.value = { id: u.id, username: u.username || u.name || '', email: u.email || '', role: u.role || 'USER', active: !!u.active, password: '' }
+  form.value = { 
+    id: u.id, 
+    username: u.username || u.name || '', 
+    email: u.email || '', 
+    role: u.role || 'USER', 
+    active: !!u.active, 
+    password: '' 
+  }
   formErr.value = ''
+  formMode.value = 'edit'
   showForm.value = true
 }
+
+function openPassword(u) {
+  form.value = { id: u.id, password: '' }
+  formErr.value = ''
+  formMode.value = 'reset'
+  showForm.value = true
+}
+
 function closeForm() {
   showForm.value = false
   formErr.value = ''
+  form.value = { id: null, username: '', email: '', role: 'USER', active: true, password: '' }
 }
 
 async function saveUser() {
   try {
     saving.value = true
     formErr.value = ''
-    const body = { username: form.value.username, email: form.value.email, role: form.value.role, active: form.value.active }
-    if (form.value.id) {
-      await API.put(`/users/${form.value.id}`, body)
-    } else {
-      await API.post('/users', { ...body, password: form.value.password })
+
+    if (formMode.value === 'create') {
+      await createUser({ 
+        username: form.value.username, 
+        email: form.value.email, 
+        role: form.value.role, 
+        active: form.value.active, 
+        password: form.value.password 
+      })
+    } else if (formMode.value === 'edit') {
+      await updateUser(form.value.id, { 
+        username: form.value.username, 
+        email: form.value.email, 
+        role: form.value.role, 
+        active: form.value.active 
+      })
+    } else if (formMode.value === 'reset') {
+      await resetUserPassword(form.value.id, { 
+        password: form.value.password 
+      })
     }
+
     showForm.value = false
     await fetchUsers(page.value)
   } catch (e) {
     console.error('saveUser error', e)
-    formErr.value = props.language === 'FR' ? "Échec de l’enregistrement." : 'Failed to save.'
+    formErr.value = t('saveError')
   } finally {
     saving.value = false
   }
@@ -649,35 +573,29 @@ async function saveUser() {
 
 async function toggleActive(u) {
   try {
-    await API.patch(`/users/${u.id}/toggle`)
+    await toggleUserStatus(u.id)
     u.active = !u.active
   } catch (e) {
     console.error('toggleActive error', e)
-    fetchUsers(page.value)
+    await fetchUsers(page.value)
   }
 }
 
-async function resetPassword(u) {
-  try {
-    await API.post(`/users/${u.id}/reset-password`)
-    alert(props.language === 'FR' ? 'Mot de passe réinitialisé (si email configuré).' : 'Password reset (if email configured).')
-  } catch (e) {
-    console.error('resetPassword error', e)
-    alert(props.language === 'FR' ? 'Échec de la réinitialisation.' : 'Reset failed.')
-  }
+function confirmDelete(u) { 
+  toDelete.value = u 
 }
 
-function confirmDelete(u) { toDelete.value = u }
 async function removeUser() {
   if (!toDelete.value) return
+  
   try {
     saving.value = true
-    await API.delete(`/users/${toDelete.value.id}`)
+    await deleteUser(toDelete.value.id)
     toDelete.value = null
     await fetchUsers(page.value)
   } catch (e) {
     console.error('removeUser error', e)
-    alert(props.language === 'FR' ? 'Suppression impossible.' : 'Delete failed.')
+    alert(t('deleteError'))
   } finally {
     saving.value = false
   }

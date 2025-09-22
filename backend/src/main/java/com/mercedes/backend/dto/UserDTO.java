@@ -1,52 +1,42 @@
-package com.mercedes.backend.entity;
+package com.mercedes.backend.dto;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mercedes.backend.entity.User;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "users")
-public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class UserDTO {
+
     private Long id;
-
-    @Column(nullable = false, unique = true)
     private String username;
-
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = true) // Allow NULL if email is optional
     private String email;
-
-    @Column(nullable = true)
     private String full_name;
-
-    @Column(nullable = true)
     private String phone;
-
-    @Column(nullable = false)
     private String role;
+    private boolean active;
 
-    @Column(nullable = false)
-    private boolean active = true;
-
-    @Column(nullable = true)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
     private Instant last_login;
-
-    @CreationTimestamp
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime created_at;
-
-    @UpdateTimestamp
-    @Column(nullable = true)
+    private Instant created_at;
     private Instant updated_at;
 
+    public UserDTO(User user) {
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.email = user.getEmail();
+        this.full_name = user.getFull_name();
+        this.phone = user.getPhone();
+        this.role = user.getRole();
+        this.active = user.isActive();
+
+        this.last_login = user.getLast_login();
+        this.updated_at = user.getUpdated_at();
+    }
+
+    public UserDTO() {
+    }
 
     public Long getId() {
         return id;
@@ -62,14 +52,6 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {
@@ -112,6 +94,14 @@ public class User {
         this.active = active;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public Instant getLast_login() {
         return last_login;
     }
@@ -120,15 +110,19 @@ public class User {
         this.last_login = last_login;
     }
 
+    public Instant getCreated_at() {
+        return created_at;
+    }
 
+    public void setCreated_at(Instant created_at) {
+        this.created_at = created_at;
+    }
 
     public Instant getUpdated_at() {
         return updated_at;
     }
 
     public void setUpdated_at(Instant updated_at) {
-
         this.updated_at = updated_at;
-
     }
 }

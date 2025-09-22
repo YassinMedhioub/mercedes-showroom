@@ -1,11 +1,9 @@
 package com.mercedes.backend.controller;
 
 import com.mercedes.backend.dto.CarDTO;
+import com.mercedes.backend.mapper.CarMapper;
 import com.mercedes.backend.service.CarService;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-
 
 import java.util.List;
 
@@ -20,16 +18,36 @@ public class CarController {
     }
 
     @GetMapping
-    public List<CarDTO> getCars() {
-        return carService.getAllCars();
+    public List<CarDTO> getCars(@RequestParam(required = false) String q) {
+        return carService.getAllCars(q)
+                .stream()
+                .map(CarMapper::toDTO)
+                .toList();
     }
 
+    // 👇 ADD THIS MISSING ENDPOINT
     @GetMapping("/{id}")
     public CarDTO getCarById(@PathVariable Long id) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println(">>> /api/cars/{id} accessed by " + auth.getName() +
-                " with roles " + auth.getAuthorities());
-        return carService.getCarById(id);
+        CarDTO carDTO = carService.getCarById(id);
+        if (carDTO == null) {
+            throw new RuntimeException("Car not found with id: " + id);
+        }
+        return carDTO;
+    }
+    // 👆 ENDPOINT ADDED
+
+    @PostMapping
+    public CarDTO createCar(@RequestBody CarDTO carDTO) {
+        return carService.createCar(carDTO);
     }
 
+    @PutMapping("/{id}")
+    public CarDTO updateCar(@PathVariable Long id, @RequestBody CarDTO carDTO) {
+        return carService.updateCar(id, carDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteCar(@PathVariable Long id) {
+        carService.deleteCar(id);
+    }
 }

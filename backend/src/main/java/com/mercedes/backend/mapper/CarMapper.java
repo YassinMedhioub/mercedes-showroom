@@ -4,7 +4,6 @@ import com.mercedes.backend.dto.CarDTO;
 import com.mercedes.backend.dto.CarImageDTO;
 import com.mercedes.backend.entity.Car;
 import com.mercedes.backend.entity.CarImage;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,13 +22,15 @@ public class CarMapper {
         dto.setFuelType(car.getFuelType());
         dto.setTransmission(car.getTransmission());
 
-        List<CarImageDTO> imageDTOs = car.getImages().stream()
-                .map(CarMapper::toImageDTO)
-                .collect(Collectors.toList());
+        // ✅ Fix NullPointerException
+        List<CarImageDTO> imageDTOs = (car.getImages() != null)
+                ? car.getImages().stream().map(CarMapper::toImageDTO).toList()
+                : List.of();
         dto.setImages(imageDTOs);
 
         return dto;
     }
+
 
     private static CarImageDTO toImageDTO(CarImage img) {
         CarImageDTO dto = new CarImageDTO();

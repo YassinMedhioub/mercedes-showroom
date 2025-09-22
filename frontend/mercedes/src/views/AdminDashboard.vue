@@ -1,50 +1,78 @@
+
 <template>
-  <div class="min-h-[calc(100vh-180px)] bg-gradient-to-tr from-black via-gray-900 to-zinc-800 flex flex-col">
-    <main class="flex-1 flex flex-col items-center justify-start px-6 pt-30 pb-12">
-      <h1 class="text-3xl text-white mb-4 font-bold">
-        Bienvenue, {{ displayName }}
+  <div
+    :class="[ 
+      'min-h-[calc(100vh-180px)] flex flex-col',
+      'bg-gradient-to-br',
+      isDark
+        ? 'from-zinc-900 via-black to-gray-800 text-white'
+        : 'from-[#f7f7fa] via-[#f2f2f5] to-[#e5e7eb] text-zinc-900'
+    ]"
+  >
+    <br>
+
+    <main class="flex-1 flex flex-col items-center justify-start px-6 pt-12 pb-12">
+      <h1 class="text-3xl mb-4 font-bold">
+        {{ t('welcome') }}, {{ displayName }}
       </h1>
 
-      <p class="text-zinc-300 mb-8">Gérez les utilisateurs, les véhicules, et plus encore.</p>
+      <p class="mb-8 opacity-80">
+        {{ t('subtitle') }}
+      </p>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-        <button @click="$emit('navigate', 'ManageUsers')">
-          <div class="rounded-xl bg-zinc-900/80 p-6 shadow-xl text-center text-white">
-            <div class="text-4xl mb-2">👤</div>
-            Gestion Utilisateurs
-            <div class="text-xs text-zinc-400">Ajouter, modifier, supprimer...</div>
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
+        <!-- USERS -->
+        <button @click="router.push('/manage-users')" :class="cardClass">
+          <div class="text-4xl mb-2">👤</div>
+          <div class="font-semibold mb-1">{{ t('users') }}</div>
+          <div class="text-xs">{{ t('usersDesc') }}</div>
         </button>
 
-        <div class="rounded-xl bg-zinc-900/80 p-6 shadow-xl text-center text-white">
+        <!-- CARS -->
+        <button @click="router.push('/manage-cars')" :class="cardClass">
           <div class="text-4xl mb-2">🚗</div>
-          <div class="font-semibold mb-1">Gestion Véhicules</div>
-          <div class="text-xs text-zinc-400">Ajouter, stock, modèles...</div>
-        </div>
+          <div class="font-semibold mb-1">{{ t('cars') }}</div>
+          <div class="text-xs">{{ t('carsDesc') }}</div>
+        </button>
 
-        <div class="rounded-xl bg-zinc-900/80 p-6 shadow-xl text-center text-white">
+        <!-- STATS -->
+        <button @click="router.push('/statistics')" :class="cardClass">
           <div class="text-4xl mb-2">📊</div>
-          <div class="font-semibold mb-1">Statistiques</div>
-          <div class="text-xs text-zinc-400">Commandes, ventes, etc.</div>
-        </div>
+          <div class="font-semibold mb-1">{{ t('stats') }}</div>
+          <div class="text-xs">{{ t('statsDesc') }}</div>
+        </button>
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { usePrefs } from '../components/usePrefs';
+import { useI18n } from '../composables/useI18n'; // New shared i18n composable
 
-const emit = defineEmits(['logout', 'navigate'])
 const router = useRouter()
-
-/* Passe le nom depuis le parent : <AdminHome :adminName="user.fullName" /> */
 const props = defineProps({
   adminName: { type: String, default: '' }
 })
-const displayName = computed(() => (props.adminName || '').trim() || 'Administrateur')
-function logout () {
-  emit('logout')
-}
+
+const { isDark, lang } = usePrefs()
+const { t } = useI18n() // Use shared i18n composable
+
+// Validate and sanitize adminName
+const displayName = computed(() => {
+  const name = (props.adminName || '').trim()
+  return name.length > 50 ? name.slice(0, 50) + '...' : name || 'Administrateur'
+})
+
+// Classes for cards with hover based on theme
+const cardClass = computed(() =>
+  [
+    'rounded-xl p-6 shadow-xl text-center transition-all duration-200 cursor-pointer group w-full min-h-[170px]',
+    isDark.value
+      ? 'bg-zinc-900/80 text-white hover:bg-gray-300 hover:text-black hover:scale-[1.03]'
+      : 'bg-white/90 text-zinc-800 border border-zinc-200 hover:bg-gray-700 hover:text-white hover:scale-[1.03]'
+  ].join(' ')
+)
 </script>

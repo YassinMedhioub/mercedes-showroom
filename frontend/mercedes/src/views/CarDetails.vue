@@ -28,18 +28,27 @@
         <!-- 360 Viewer -->
         <section class="rounded-2xl p-4 sm:p-6 shadow-xl"
           :class="props.isDark ? 'bg-zinc-900/90 border border-zinc-800' : 'bg-white border border-zinc-200'">
-          <h2 class="text-lg font-semibold mb-3">360°</h2>
+          <h2 class="text-lg font-semibold mb-3">{{ t('viewer360') }}</h2>
           <div class="relative w-full aspect-[16/9] rounded-xl overflow-hidden select-none cursor-grab active:cursor-grabbing"
                @pointerdown="onPointerDown" @pointerup="onPointerUp" @pointerleave="onPointerUp" @pointermove="onPointerMove">
             <img v-if="frames.length" :src="frames[currentFrame]" class="absolute inset-0 w-full h-full object-contain" />
-            <div v-else class="absolute inset-0 grid place-items-center text-sm">No 360° frames</div>
+            <div v-else class="absolute inset-0 grid place-items-center text-sm">{{ t('no360Frames') }}</div>
           </div>
+          <!-- Spin toggle -->
+          <button
+            v-if="frames.length"
+            @click="toggleSpin"
+            class="text-xs mt-3 px-2 py-1 rounded border"
+            :class="props.isDark ? 'border-zinc-700 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'"
+          >
+            {{ spinning ? t('pause') : t('play') }}
+          </button>
         </section>
 
         <!-- Gallery -->
         <section class="rounded-2xl p-4 sm:p-6 shadow-xl"
           :class="props.isDark ? 'bg-zinc-900/90 border border-zinc-800' : 'bg-white border border-zinc-200'">
-          <h2 class="text-lg font-semibold mb-3">{{ props.language === 'FR' ? 'Galerie' : 'Gallery' }}</h2>
+          <h2 class="text-lg font-semibold mb-3">{{ t('gallery') }}</h2>
           <div class="relative w-full aspect-[16/9] rounded-xl overflow-hidden mb-3">
             <img v-if="activeImage" :src="activeImage" class="absolute inset-0 w-full h-full object-contain" />
           </div>
@@ -52,8 +61,8 @@
             </button>
           </div>
         </section>
-
       </div>
+
       <!-- Description (AI-generated) -->
       <section
         :class="[
@@ -62,15 +71,13 @@
         ]"
       >
         <div class="flex items-center justify-between mb-2">
-          <h2 class="text-lg font-semibold">
-            {{ props.language === 'FR' ? 'À propos du modèle' : 'About this model' }}
-          </h2>
+          <h2 class="text-lg font-semibold">{{ t('aboutModel') }}</h2>
           <button
             type="button"
             @click="fetchAiDescription(true)"
             class="text-xs px-2 py-1 rounded border"
             :class="props.isDark ? 'border-zinc-700 hover:bg-zinc-800' : 'border-zinc-300 hover:bg-zinc-100'">
-            {{ props.language === 'FR' ? 'Régénérer' : 'Regenerate' }}
+            {{ t('regenerate') }}
           </button>
         </div>
 
@@ -102,6 +109,10 @@
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from '../composables/useI18n'
+// 👇 FIXED: Added missing import
+import { fetchCarById } from '../services/api'
 
 /* Props */
 const props = defineProps({
@@ -109,8 +120,15 @@ const props = defineProps({
   isDark: { type: Boolean, default: false },
   language: { type: String, default: 'FR' },
 })
+
+const router = useRouter()
+const { t } = useI18n()
 const emit = defineEmits(['navigate'])
-function goBack() { emit('navigate', { page: 'cars', sub: 'cars' }) }
+
+// 👇 FIXED: Use router.push instead of emit for navigation
+function goBack() { 
+  router.push('/cars') 
+}
 
 /* State */
 const car = ref(null)
@@ -119,58 +137,75 @@ const frames = ref([])
 const activeIndex = ref(0)
 const activeImage = computed(() => gallery.value?.[activeIndex.value] || null)
 
-/* Fetch car */
+/* Fetch car - 👇 FIXED: Use API service instead of raw fetch */
 onMounted(async () => {
   try {
-    const token = localStorage.getItem("authToken")
-    const res = await fetch(`http://localhost:8080/api/cars/${props.carId}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data = await res.json()
-    car.value = data
-    gallery.value = data.images.filter(img => !img.is360).map(img => img.imageUrl)
-    frames.value  = data.images.filter(img => img.is360).map(img => img.imageUrl)
-    const mainIndex = data.images.findIndex(img => img.main)
+    car.value = await fetchCarById(props.carId)
+    gallery.value = car.value.images?.filter(img => !img.is360).map(img => img.imageUrl) || []
+    frames.value = car.value.images?.filter(img => img.is360).map(img => img.imageUrl) || []
+
+    const mainIndex = car.value.images?.findIndex(img => img.main) ?? -1
     activeIndex.value = mainIndex >= 0 ? mainIndex : 0
+
+    if (!gallery.value.length) gallery.value = ['/fallback.jpg']
   } catch (err) {
-    console.error("Failed to load car", err)
+    console.error('Failed to load car:', err)
+    router.push('/cars') // Redirect on error
   }
 })
-function setActive(i){ activeIndex.value = i }
+
+function setActive(i) {
+  activeIndex.value = i
+}
 
 /* 360 Viewer */
 const currentFrame = ref(0)
-let dragging = false, startX = 0, spinTimer = null
-const sensitivity = 6, spinning = ref(true)
-function onPointerDown(e){ dragging = true; startX = e.clientX }
-function onPointerUp(){ dragging = false }
-function onPointerMove(e){
+let dragging = false,
+  startX = 0,
+  spinTimer = null
+const sensitivity = 6,
+  spinning = ref(true)
+
+function onPointerDown(e) {
+  dragging = true
+  startX = e.clientX
+}
+function onPointerUp() {
+  dragging = false
+}
+function onPointerMove(e) {
   if (!dragging || !frames.value.length) return
   const dx = e.clientX - startX
-  if (Math.abs(dx) >= sensitivity){
-    currentFrame.value = (currentFrame.value - Math.sign(dx) + frames.value.length) % frames.value.length
+  if (Math.abs(dx) >= sensitivity) {
+    currentFrame.value =
+      (currentFrame.value - Math.sign(dx) + frames.value.length) % frames.value.length
     startX = e.clientX
   }
 }
-function toggleSpin(){ spinning.value = !spinning.value; handleSpin() }
-function handleSpin(){
+function toggleSpin() {
+  spinning.value = !spinning.value
+  handleSpin()
+}
+function handleSpin() {
   clearInterval(spinTimer)
-  if (spinning.value && frames.value.length){
+  if (spinning.value && frames.value.length) {
     spinTimer = setInterval(() => {
       currentFrame.value = (currentFrame.value + 1) % frames.value.length
     }, 80)
   }
 }
-watch(frames, () => { currentFrame.value = 0; handleSpin() })
+watch(frames, () => {
+  currentFrame.value = 0
+  handleSpin()
+})
 onMounted(handleSpin)
 onUnmounted(() => clearInterval(spinTimer))
 
-
-/** ---------------- AI Description (with cache) ---------------- **/
+/* AI Description (with cache) */
 const aiDesc = ref('')
 const aiLoading = ref(false)
 const aiError = ref('')
+const defaultDescription = computed(() => t('defaultDescription'))
 
 const carName = computed(() => car.value?.model || '')
 const descCacheKey = computed(() => `ai-desc:${props.language}:${carName.value}`)
@@ -211,9 +246,12 @@ async function fetchAiDescription(force = false) {
     aiLoading.value = false
   }
 }
+
 watch([car, () => props.language], () => fetchAiDescription(), { immediate: true })
 </script>
 
 <style scoped>
-img { image-rendering: -webkit-optimize-contrast; }
+img { 
+  image-rendering: -webkit-optimize-contrast; 
+}
 </style>

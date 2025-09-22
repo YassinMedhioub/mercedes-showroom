@@ -1,3 +1,4 @@
+
 <template>
   <div :class="[
       { dark: isDark },
@@ -24,13 +25,13 @@
         <!-- Back -->
         <button
           type="button"
-          @click="emit('navigate','dashboard')"
+          @click="router.push('/dashboard')"
           class="px-3 py-2 rounded-lg text-sm font-medium transition-colors"
           :class="props.isDark
             ? 'bg-zinc-800 text-white hover:bg-zinc-700'
             : 'bg-white border border-zinc-300 text-zinc-700 hover:bg-zinc-200'"
         >
-          ← {{ props.language === 'FR' ? 'Retour' : 'Back' }}
+          ← {{ t('back') }}
         </button>
       </div>
 
@@ -116,7 +117,7 @@
           {{ t('ctaSubtitle') }}
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button @click="emit('navigate','cars')"
+          <button @click="router.push('/cars')"
             class="px-5 py-3 rounded-lg font-semibold transition-colors"
             :class="props.isDark
               ? 'bg-[#5d737e] text-white hover:bg-zinc-700'
@@ -125,7 +126,7 @@
             {{ t('exploreModels') }}
           </button>
           <button
-            @click="emit('navigate','driveBook')"
+            @click="router.push('/driveBook')"
             class="px-5 py-3 rounded-lg font-semibold transition-colors"
             :class="props.isDark
               ? 'bg-zinc-800 text-white hover:bg-zinc-700'
@@ -141,6 +142,8 @@
 
 <script setup>
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useI18n } from '../composables/useI18n'
 
 /** Props exactly like ChatWidget: parent controls them */
 const props = defineProps({
@@ -148,31 +151,9 @@ const props = defineProps({
   isDark:   { type: Boolean, default: false },
 })
 
-/** Emits */
-const emit = defineEmits(['navigate'])
-
-/** i18n */
-const i18n = {
-  FR: {
-    techTitle: 'Technologies Mercedes',
-    techSubtitle: "Innovation, sécurité et connectivité au service d'une expérience de conduite unique.",
-    learnMore: 'En savoir plus',
-    ctaTitle: 'Prêt à vivre l’innovation Mercedes ?',
-    ctaSubtitle: 'Découvrez les modèles équipés des dernières technologies ou réservez un essai.',
-    exploreModels: 'Découvrir nos modèles',
-    bookTestDrive: 'Demander un essai',
-  },
-  EN: {
-    techTitle: 'Mercedes Technologies',
-    techSubtitle: 'Innovation, safety and connectivity for a remarkable driving experience.',
-    learnMore: 'Learn more',
-    ctaTitle: 'Ready to experience Mercedes innovation?',
-    ctaSubtitle: 'Explore models with the latest tech or book a test drive.',
-    exploreModels: 'Explore Our Models',
-    bookTestDrive: 'Book a Test Drive',
-  }
-}
-const t = (k) => (i18n[props.language] || i18n.FR)[k] || k
+/** Services */
+const router = useRouter()
+const { t } = useI18n()
 
 /** chip class helper (same pattern as ChatWidget) */
 const chipCls = computed(() =>
@@ -183,30 +164,72 @@ const chipCls = computed(() =>
 
 /** content */
 const features = ref([
-  { emoji: '🧠', title: 'MBUX & Voice',
-    desc: 'Assistant vocal naturel, écrans haute résolution, navigation augmentée pour une interaction intuitive.',
-    bullets: ['Commande vocale “Hey Mercedes”','Écrans tactiles & HUD','Navigation AR et suggestions proactives'],
-    more: 'MBUX s’adapte à vos habitudes : itinéraires favoris, confort, multimédia. L’interface évolue avec des mises à jour en ligne.' },
-  { emoji: '🛡️', title: 'ADAS & Sécurité',
-    desc: 'Aides avancées à la conduite pour plus de sérénité au quotidien.',
-    bullets: ['DISTRONIC (régulateur de distance)','PRE-SAFE et freinage d’urgence assisté','Maintien de voie & angle mort actif'],
-    more: 'Les systèmes ADAS surveillent l’environnement, avertissent et peuvent intervenir pour éviter ou atténuer un accident.' },
-  { emoji: '⚡', title: 'EQ & Électrification',
-    desc: 'Technologies EQ pour l’électrique et l’hybride rechargeable.',
-    bullets: ['Gestion intelligente de l’énergie','Planification de charge sur itinéraire','Récupération d’énergie au freinage'],
-    more: 'Les modèles EQ optimisent performance et autonomie, avec infos de charge en temps réel et services connectés.' },
-  { emoji: '🧭', title: '4MATIC',
-    desc: 'Transmission intégrale intelligente pour une motricité optimale.',
-    bullets: ['Répartition de couple adaptative','Adhérence améliorée route/pluie/neige','Conduite stable et dynamique'],
-    more: 'Le système 4MATIC gère en continu la motricité selon l’adhérence et le style de conduite pour plus de sécurité.' },
-  { emoji: '🏁', title: 'AMG Performance',
-    desc: 'Châssis, freins et modes de conduite calibrés pour la sportivité.',
-    bullets: ['Modes Sport/Track configurables','Échappement et direction spécifiques','Freinage haute performance'],
-    more: 'Les modèles AMG offrent une réponse moteur/transmission et un comportement châssis taillés pour l’émotion.' },
-  { emoji: '📶', title: 'Connectivité & Services',
-    desc: 'App Mercedes me, mises à jour à distance et fonctions à la demande.',
-    bullets: ['Contrôle à distance (verrouillage, clim)','OTA (Over-the-Air) & diagnostics','Intégration smartphone & CarPlay/Android Auto'],
-    more: 'La connectivité permet d’ajouter des options logicielles et de garder votre véhicule à jour dans le temps.' },
+  { 
+    emoji: '🧠', 
+    title: t('mbuxTitle'), 
+    desc: t('mbuxDesc'),
+    bullets: [
+      t('mbuxBullet1'),
+      t('mbuxBullet2'),
+      t('mbuxBullet3')
+    ],
+    more: t('mbuxMore')
+  },
+  { 
+    emoji: '🛡️', 
+    title: t('adasTitle'), 
+    desc: t('adasDesc'),
+    bullets: [
+      t('adasBullet1'),
+      t('adasBullet2'),
+      t('adasBullet3')
+    ],
+    more: t('adasMore')
+  },
+  { 
+    emoji: '⚡', 
+    title: t('eqTitle'), 
+    desc: t('eqDesc'),
+    bullets: [
+      t('eqBullet1'),
+      t('eqBullet2'),
+      t('eqBullet3')
+    ],
+    more: t('eqMore')
+  },
+  { 
+    emoji: '🧭', 
+    title: t('maticTitle'), 
+    desc: t('maticDesc'),
+    bullets: [
+      t('maticBullet1'),
+      t('maticBullet2'),
+      t('maticBullet3')
+    ],
+    more: t('maticMore')
+  },
+  { 
+    emoji: '🏁', 
+    title: t('amgTitle'), 
+    desc: t('amgDesc'),
+    bullets: [
+      t('amgBullet1'),
+      t('amgBullet2'),
+      t('amgBullet3')
+    ],
+    more: t('amgMore')
+  },
+  { 
+    emoji: '📶', 
+    title: t('connectivityTitle'), 
+    desc: t('connectivityDesc'),
+    bullets: [
+      t('connectivityBullet1'),
+      t('connectivityBullet2'),
+      t('connectivityBullet3')
+    ],
+    more: t('connectivityMore')
+  }
 ])
 </script>
 
