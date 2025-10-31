@@ -13,7 +13,7 @@
 
     <main class="flex-1 flex flex-col items-center justify-start px-6 pt-12 pb-12">
       <h1 class="text-3xl mb-4 font-bold">
-        {{ t('welcome') }}, {{ displayName }}
+        {{ t('welcomeAuthenticated') }} {{ displayName }}
       </h1>
 
       <p class="mb-8 opacity-80">

@@ -24,8 +24,7 @@ public class CarController {
                 .map(CarMapper::toDTO)
                 .toList();
     }
-
-    // 👇 ADD THIS MISSING ENDPOINT
+    
     @GetMapping("/{id}")
     public CarDTO getCarById(@PathVariable Long id) {
         CarDTO carDTO = carService.getCarById(id);
@@ -34,7 +33,6 @@ public class CarController {
         }
         return carDTO;
     }
-    // 👆 ENDPOINT ADDED
 
     @PostMapping
     public CarDTO createCar(@RequestBody CarDTO carDTO) {

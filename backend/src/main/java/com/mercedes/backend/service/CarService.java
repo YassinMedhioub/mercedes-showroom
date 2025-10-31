@@ -42,7 +42,6 @@ public class CarService {
 
         Car car = optionalCar.get();
 
-        // ✅ Update fields from DTO
         car.setModel(carDTO.getModel());
         car.setType(carDTO.getType());
         car.setPrice(carDTO.getPrice());
@@ -53,8 +52,7 @@ public class CarService {
         car.setFuelType(carDTO.getFuelType());
         car.setTransmission(carDTO.getTransmission());
 
-        // ⚡ Si tu veux gérer les images plus tard :
-        // car.setImages(...)
+
 
         Car updated = carRepository.save(car);
         return CarMapper.toDTO(updated);

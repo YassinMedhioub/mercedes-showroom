@@ -62,6 +62,33 @@ Write in ${langName}.
     }
 });
 
+
+// API Endpoint to Get Events
+app.get('/api/events', async (req, res) => {
+    try {
+        const [rows] = await pool.query('SELECT * FROM events');
+        res.json(rows);
+    } catch (err) {
+        console.error('Error fetching events:', err);
+        res.status(500).json({ error: 'Failed to fetch events' });
+    }
+});
+
+// Serve Static Images (Optional)
+app.use('/images', express.static('public/images'));
+
+// Car Management
+export async function fetchCars(params = {}) {
+    try {
+        const response = await api.get('/cars', { params })
+        return response.data
+    } catch (error) {
+        console.error('Failed to fetch cars:', error)
+        throw error
+    }
+}
+
+
 const PORT = process.env.PORT || 8787;
 app.listen(PORT, () => {
     console.log(`✅ AI server running on http://localhost:${PORT}`);

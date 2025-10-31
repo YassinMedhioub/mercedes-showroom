@@ -47,13 +47,13 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // Generate random temp password (or use a default)
+
         String newPassword = "changeme123";
         user.setPassword(passwordEncoder.encode(newPassword));
 
         userRepository.save(user);
 
-        // optional: send email
+
         System.out.println("✅ Password reset for " + user.getUsername() +
                 " → new temp password: " + newPassword);
     }

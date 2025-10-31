@@ -11,7 +11,6 @@ api.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${token}`
     }
 
-    // Add detailed logging
     console.log('🔗 API REQUEST:', {
         method: config.method?.toUpperCase(),
         url: config.url,
@@ -123,7 +122,6 @@ export async function fetchCarModels() {
         return response.data
     } catch (error) {
         console.error('Failed to fetch car models:', error)
-        // Return fallback models if API fails
         return ['Classe S', 'Classe A', 'GLE', 'AMG GT', 'Classe C', 'GLA']
     }
 }
@@ -143,22 +141,17 @@ export async function fetchUsers(params = {}) {
     try {
         const response = await api.get('/users', { params })
         const data = response.data
-
-        // Handle different response structures
         if (data.content && data.totalElements) {
-            // Spring Boot Page<T> response
             return {
                 users: data.content,
                 total: data.totalElements
             }
         } else if (data.items && data.total) {
-            // Custom paginated response
             return {
                 users: data.items,
                 total: data.total
             }
         } else {
-            // Simple array response
             return {
                 users: Array.isArray(data) ? data : [],
                 total: data.length || 0
@@ -167,6 +160,17 @@ export async function fetchUsers(params = {}) {
     } catch (error) {
         console.error('Failed to fetch users:', error)
         throw error
+    }
+}
+
+// NEW: Fetch user's participated event IDs
+export async function fetchUserParticipations() {
+    try {
+        const response = await api.get('/events/user/participations')  // Assume backend endpoint returns [1, 2, ...]
+        return response.data  // Array of event IDs
+    } catch (error) {
+        console.error('Failed to fetch user participations:', error)
+        return []  // Fallback empty
     }
 }
 
@@ -220,6 +224,37 @@ export async function resetUserPassword(id, passwordData) {
     }
 }
 
+// Event Management
+export async function fetchEvents() {
+    try {
+        const response = await api.get('/events')
+        return response.data
+    } catch (error) {
+        console.error('Failed to fetch events:', error)
+        throw error
+    }
+}
+
+// NEW: Fetch single event by ID
+export async function fetchEventById(id) {
+    try {
+        const response = await api.get(`/events/${id}`)
+        return response.data
+    } catch (error) {
+        console.error('Failed to fetch event:', error)
+        throw error
+    }
+}
+
+// Event Participation
+export const participateInEvent = async (eventId) => {
+    const token = localStorage.getItem('authToken')
+    const response = await axios.post(`/api/events/${eventId}/participate`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+    })
+    return response.data
+}
+
 // Advisor Meeting
 export async function submitAdvisorMeeting(meetingData) {
     try {
@@ -252,3 +287,4 @@ export async function fetchStatistics() {
         throw error
     }
 }
+export { api }

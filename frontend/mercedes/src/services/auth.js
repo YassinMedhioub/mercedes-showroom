@@ -1,5 +1,6 @@
 
-import axios from 'axios'
+import axios from 'axios';
+import { api } from './api'; // FIXED: Import api instance from api.js
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
 
@@ -8,62 +9,37 @@ const authApi = axios.create({
     timeout: 15000,
 })
 
-export async function loginUser(credentials) {
+
+
+export const loginUser = async (credentials) => {
     try {
-        const response = await authApi.post('/login', credentials, {
-            headers: { 'Content-Type': 'application/json' }
-        })
+        const response = await api.post('/auth/login', credentials);  // Or your endpoint, e.g., '/api/auth/login'
+        console.log('🟢 FULL LOGIN RESPONSE:', response.data);
 
-        const data = response.data
-        console.log("🟢 FULL LOGIN RESPONSE:", data)
+        const backendData = response.data;
 
-        // Normalize role detection
-        let backendRole = null
-        if (Array.isArray(data?.roles) && data.roles.length > 0) {
-            backendRole = data.roles[0]
-        } else if (typeof data?.role === 'string') {
-            backendRole = data.role
+        // Detect role from backend
+        let detectedRole = 'USER';  // Default
+        if (backendData.roles && backendData.roles.length > 0) {
+            detectedRole = backendData.roles[0];  // e.g., 'USER'
+            console.log('🟢 RAW BACKEND ROLE:', detectedRole);
+        } else if (backendData.role) {
+            detectedRole = backendData.role;
         }
+        console.log('🟢 FINAL DETECTED ROLE:', detectedRole);
 
-        console.log("🟢 RAW BACKEND ROLE:", backendRole)
-
-        // More flexible role detection
-        let role = 'USER'
-        if (backendRole && backendRole.toUpperCase().includes('ADMIN')) {
-            role = 'ADMIN'
-        }
-
-        console.log("🟢 FINAL DETECTED ROLE:", role)
-
-        const token = data?.token
-        const resolvedName = (
-            data?.name ||
-            data?.fullName ||
-            data?.user?.name ||
-            data?.username ||
-            credentials.username
-        ).trim()
-
-        // Save authentication state
-        localStorage.setItem('isLoggedIn', 'true')
-        localStorage.setItem('role', role)
-        localStorage.setItem('adminName', resolvedName)
-
-        if (token) {
-            localStorage.setItem('authToken', token)
-        }
-
-        // Return user data for navigation
-        return { role, fullName: resolvedName }
-
+        // Return full data (token + role/fullName)
+        return {
+            token: backendData.token,  // Ensure token is included
+            role: detectedRole,
+            fullName: backendData.fullName || credentials.username,  // Fallback
+            roles: backendData.roles || []
+        };
     } catch (error) {
-        console.error("🔴 LOGIN ERROR:", error)
-        if (error.response?.status === 401) {
-            throw new Error('Invalid credentials')
-        }
-        throw error
+        console.error('❌ Login API error:', error);
+        throw error;
     }
-}
+};
 
 export async function verifyUser() {
     try {

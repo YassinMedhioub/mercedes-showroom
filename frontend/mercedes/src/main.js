@@ -7,7 +7,6 @@ const app = createApp(App)
 app.use(router)
 
 router.isReady().then(() => {
-    // Force hash to be exactly "#" (no trailing "/")
     if (location.hash === '#/' || location.hash === '') {
         history.replaceState(null, '', '#')
     }

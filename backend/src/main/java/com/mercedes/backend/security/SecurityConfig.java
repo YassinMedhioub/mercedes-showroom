@@ -44,11 +44,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 🔑 Explicitly permit auth endpoints
                         .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/verify").authenticated() // 🔑 Add this line
+                        .requestMatchers("/api/auth/verify").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/events/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/api/cars/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/cars/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/cars/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/cars/**").hasRole("ADMIN")
+                        .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
@@ -65,6 +68,7 @@ public class SecurityConfig {
                 );
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -76,5 +80,4 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
-
 }

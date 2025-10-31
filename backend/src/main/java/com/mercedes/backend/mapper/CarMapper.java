@@ -22,7 +22,6 @@ public class CarMapper {
         dto.setFuelType(car.getFuelType());
         dto.setTransmission(car.getTransmission());
 
-        // ✅ Fix NullPointerException
         List<CarImageDTO> imageDTOs = (car.getImages() != null)
                 ? car.getImages().stream().map(CarMapper::toImageDTO).toList()
                 : List.of();

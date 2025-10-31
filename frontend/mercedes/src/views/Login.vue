@@ -1,11 +1,9 @@
-
 <template>
   <div :class="[{ dark: isDark }, 'min-h-screen','bg-gradient-to-br',
                 isDark ? 'from-zinc-900 via-black to-gray-800'
                        : 'from-[#ffffffc8] via-[#ffffffc8] to-[#ffffffc8]',
                 'flex','flex-col']">
 
-    <!-- HEADER -->
     <header class="flex flex-wrap items-center justify-between w-full px-4 md:px-8 py-2
                    backdrop-blur sticky top-0 z-50 shadow-md gap-y-2"
             :class="isDark ? 'bg-black' : 'bg-white/60'">
@@ -26,7 +24,7 @@
       <div class="flex items-center gap-2 sm:gap-4 w-auto">
         <!-- Language selector -->
         <div class="relative">
-          <select v-model="lang"
+          <select v-model="language"
                   class="appearance-none border rounded-lg text-xs sm:text-sm px-2 py-1 focus:outline-none pr-6"
                   :class="isDark ? 'bg-black text-white' : 'bg-white text-black'">
             <option value="EN">EN</option>
@@ -44,7 +42,8 @@
                 class="ml-1 sm:ml-2 p-2 rounded-lg transition"
                 :class="isDark
                   ? 'bg-zinc-800 text-white hover:bg-zinc-700'
-                  : 'bg-zinc-200 text-zinc-900 hover:bg-zinc-300'">
+                  : 'bg-zinc-200 text-zinc-900 hover:bg-zinc-300'"
+                :aria-label="language==='FR' ? 'Basculer le thème' : 'Toggle theme'">
           <svg v-if="!isDark" class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round"
                   d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" />
@@ -92,7 +91,7 @@
                      :class="inputClass + ' pr-10'"/>
               <button type="button" class="absolute inset-y-0 right-0 px-3 text-xs"
                       @click="showPwd = !showPwd" :aria-pressed="showPwd">
-                {{ showPwd ? t('hide') : t('show') }}
+                {{ showPwd ? (language==='FR'?'Cacher':'Hide') : (language==='FR'?'Afficher':'Show') }}
               </button>
             </div>
           </div>
@@ -101,7 +100,7 @@
           <label class="inline-flex items-center gap-2 text-xs sm:text-sm"
                  :class="isDark ? 'text-zinc-200' : 'text-zinc-700'">
             <input type="checkbox" v-model="remember" class="rounded border-zinc-400">
-            {{ t('remember') }}
+            {{ language==='FR' ? 'Se souvenir de moi' : 'Remember me' }}
           </label>
 
           <!-- Submit -->
@@ -110,7 +109,7 @@
                          hover:from-gray-800 hover:to-gray-900 text-white font-bold py-2.5 rounded-xl
                          shadow-lg transition-all duration-300 focus:ring-2 focus:ring-[#5d737e] text-sm sm:text-base">
             <span v-if="!loading">{{ t('signIn') }}</span>
-            <span v-else>{{ t('signingIn') }}</span>
+            <span v-else>{{ language==='FR' ? 'Connexion…' : 'Signing in…' }}</span>
           </button>
         </form>
 
@@ -132,28 +131,39 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { usePrefs } from '../components/usePrefs'
-import { useI18n } from '../composables/useI18n'
-import { loginUser } from '../services/auth'
+import axios from 'axios'
+import { computed, onMounted, ref, watch } from 'vue'
+
+/** CONFIG **/
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8080'
+const LOGIN_URL = `${API_BASE}/api/auth/login`
 
 /** STATE **/
 const emit = defineEmits(['login'])
 const username = ref('')
 const password = ref('')
 const remember = ref(true)
-const showPwd = ref(false)
-const loading = ref(false)
-const error = ref('')
+const showPwd  = ref(false)
+const loading  = ref(false)
+const error    = ref('')
 
-/** Services & Composables **/
-const router = useRouter()
-const { t } = useI18n()
-const { isDark, lang } = usePrefs()
+const language = ref(localStorage.getItem('lang') || 'EN')
+const isDark   = ref(localStorage.getItem('darkMode') === 'true')
 
+/** i18n **/
+const translations = {
+  EN: { title:'Mercedes Login', desc:'Sign in to your luxury experience',
+        username:'Username', usernamePlaceholder:'Enter your username',
+        password:'Password', passwordPlaceholder:'Enter your password',
+        signIn:'Sign In' },
+  FR: { title:'Connexion Mercedes', desc:'Connectez-vous à votre expérience de luxe',
+        username:"Nom d'utilisateur", usernamePlaceholder:"Entrez votre nom d'utilisateur",
+        password:'Mot de passe', passwordPlaceholder:'Entrez votre mot de passe',
+        signIn:'Se connecter' }
+}
+const t = (key) => translations[language.value][key] || ''
 
-/** Computed properties **/
+/** UI classes **/
 const inputClass = computed(() =>
   `w-full px-3 py-2.5 rounded-xl ${
     isDark.value
@@ -163,79 +173,82 @@ const inputClass = computed(() =>
 )
 
 /** Theme toggling **/
+const updateHtmlClass = () => {
+  const html = document.documentElement
+  isDark.value ? html.classList.add('dark') : html.classList.remove('dark')
+}
 const toggleDark = () => {
   isDark.value = !isDark.value
+  localStorage.setItem('darkMode', String(isDark.value))
+  updateHtmlClass()
 }
+watch(language, val => localStorage.setItem('lang', val))
+watch(isDark, () => {                               // keep <html> in sync even if changed elsewhere
+  localStorage.setItem('darkMode', String(isDark.value))
+  updateHtmlClass()
+})
 
 /** Auto-handoff if already logged **/
 onMounted(() => {
-  // Verify existing session
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'
-  if (isLoggedIn) {
+  updateHtmlClass()
+  const logged = localStorage.getItem('isLoggedIn') === 'true'
+  if (logged) {
     const role = localStorage.getItem('role') || 'USER'
-    const savedName = localStorage.getItem('adminName') || localStorage.getItem('username') || 'User'
-    emit('login', { role, fullName: savedName })
-    const landing = role === 'ADMIN' ? '/admin' : '/dashboard'
-    router.push(landing)
+    const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
+    localStorage.setItem('currentPage', landing)
+    const savedName = localStorage.getItem('adminName') || localStorage.getItem('username') || 'Administrateur'
+    emit('login', { role, fullName: savedName })  // ✅ send name so greeting shows correctly
   }
 })
 
 /** Submit **/
-// In src/views/Login.vue - update handleLogin function
 async function handleLogin() {
   error.value = ''
   if (!username.value || !password.value) {
-    error.value = t('credentialsError')
+    error.value = language.value === 'FR'
+      ? 'Veuillez entrer vos informations'
+      : 'Please enter your credentials'
     return
   }
 
   loading.value = true
   try {
-    console.log('🔍 LOGIN ATTEMPT:', { username: username.value })
-    
-    const userData = await loginUser({ username: username.value, password: password.value })
-    console.log('🟢 LOGIN SUCCESS:', userData)
-    
-    // Save credentials if remember me is checked
-    if (remember.value) {
-      localStorage.setItem('username', username.value)
-    }
-    
-    console.log('🔍 LOCALSTORAGE AFTER LOGIN:', {
-      isLoggedIn: localStorage.getItem('isLoggedIn'),
-      role: localStorage.getItem('role'),
-      adminName: localStorage.getItem('adminName'),
-      authToken: localStorage.getItem('authToken') ? 'PRESENT' : 'MISSING'
-    })
-    
-    // Emit login event and navigate
-    emit('login', userData)
-    
-    // Clear form
-    username.value = ''
-    password.value = ''
-    showPwd.value = false
-    
-    console.log('🔍 EMITTING LOGIN EVENT, NAVIGATING...')
-    
-  } catch (e) {
-    console.error("🔴 LOGIN ERROR:", e)
-    error.value = t('loginError')
-  } finally {
-    loading.value = false
-  }
+  const { data } = await axios.post(
+    LOGIN_URL,
+    { username: username.value, password: password.value },
+    { headers: { 'Content-Type': 'application/json' }, timeout: 15000 }
+  )
+
+  console.log("DEBUG LOGIN RESPONSE:", data)
+
+  const token = data?.token
+  const roles = data?.roles || []
+  const role  = roles.includes("ADMIN") ? "ADMIN" : "USER"
+
+  const nameFromApi =
+    data?.name || data?.fullName || data?.user?.name || data?.username
+  const resolvedName = (nameFromApi || username.value).trim()
+
+  localStorage.setItem('isLoggedIn', 'true')
+  localStorage.setItem('role', role)
+  localStorage.setItem('adminName', resolvedName)
+  if (remember.value) localStorage.setItem('username', username.value)
+  if (token) localStorage.setItem('authToken', token)
+
+  const landing = role === 'ADMIN' ? 'adminDashboard' : 'dashboard'
+  localStorage.setItem('currentPage', landing)
+
+  emit('login', { role, fullName: resolvedName, username: username.value })
+} catch (e) {
+  error.value = language.value === 'FR'
+    ? 'Identifiants incorrects ou serveur indisponible'
+    : 'Invalid credentials or server unreachable'
+}
+
 }
 </script>
 
 <style>
-@keyframes shake { 
-  0%{transform:translateX(0)} 
-  25%{transform:translateX(-5px)} 
-  50%{transform:translateX(5px)} 
-  75%{transform:translateX(-5px)} 
-  100%{transform:translateX(0)} 
-}
-.animate-shake { 
-  animation: shake 0.3s ease-in-out; 
-}
+@keyframes shake { 0%{transform:translateX(0)}25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-5px)}100%{transform:translateX(0)} }
+.animate-shake { animation: shake 0.3s ease-in-out; }
 </style>

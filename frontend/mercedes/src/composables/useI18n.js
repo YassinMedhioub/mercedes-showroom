@@ -4,8 +4,18 @@ import { usePrefs } from '../components/usePrefs'
 
 const translations = {
     FR: {
+
+        // Header Bar
+        Headertitle: 'Mon espace',
+        HeaderadminTitle: 'Espace Admin',
+        Headerlogout: 'Déconnexion',
+        Headerlogin: 'Connexion',
+        HeaderlightMode: 'Mode clair',
+        HeaderdarkMode: 'Mode sombre',
+        MercedesBenz: 'Mercedes-Benz',
+
+
         // Admin Dashboard
-        welcome: "Bienvenue",
         subtitle: "Gérez les utilisateurs, les véhicules, et plus encore.",
         users: "Gestion Utilisateurs",
         usersDesc: "Ajouter, modifier, supprimer...",
@@ -16,7 +26,8 @@ const translations = {
 
         // User Dashboard
         welcome: "Bienvenue, Cher Visiteur",
-        intro: "Retrouvez ici les services et informations de votre showroom.",
+        DashboardIntro: "Retrouvez ici les services et informations de votre showroom.",
+        welcomeAuthenticated: "Bienvenue, ",
         models: "Découvrir nos modèles",
         modelsDesc: "Gamme, nouveautés, prix",
         tech: "Technologies Mercedes",
@@ -27,6 +38,24 @@ const translations = {
         advisorDesc: "Prenez rendez-vous aujourd'hui",
         offers: "Offres spéciales",
         offersDesc: "Promotions et avantages en showroom",
+
+
+        // Events
+        events: "Événements à venir",
+        eventsDesc: "Decouvrir les Evenement Mercedes à venir",
+        participate: "Participer",
+        eventsSubs: "Ici, vous pouvez découvrir nos événements. Vous devez être connecté pour participer.",
+        participated: 'Participé',
+        alreadyParticipated: 'Vous avez déjà participé à cet événement',
+        eventDetails: "Détails de l'événement",
+        eventDetailsSubs: "Détails complets sur cet événement",
+        eventLoadError: "Échec du chargement des détails de l'événement",
+        loading: "Chargement...",
+        retry: "Réessayer",
+        participated: "Participe",
+        alreadyParticipated: "Vous avez déjà participé à cet événement",
+        loginToParticipate: "Connectez-vous pour participer",
+
 
         // Manage Users
         title: 'Gestion Utilisateurs',
@@ -230,6 +259,16 @@ const translations = {
         loginError: 'Identifiants incorrects ou serveur indisponible'
     },
     EN: {
+
+        // Header Bar
+        Headertitle: 'My Space',
+        HeaderadminTitle: 'Admin Space',
+        Headerlogout: 'Logout',
+        Headerlogin: 'Login',
+        HeaderlightMode: 'Light Mode',
+        HeaderdarkMode: 'Dark Mode',
+
+
         // Admin Dashboard
         welcome: "Welcome",
         subtitle: "Manage users, vehicles, and more.",
@@ -242,7 +281,7 @@ const translations = {
 
         // User Dashboard
         welcome: "Welcome, Dear Visitor",
-        intro: "Find here the services and information of your showroom.",
+        DashboardIntro: "Find here the services and information of your showroom.",
         models: "Discover our models",
         modelsDesc: "Range, new arrivals, prices",
         tech: "Mercedes Technologies",
@@ -253,6 +292,24 @@ const translations = {
         advisorDesc: "Schedule an appointment today",
         offers: "Special offers",
         offersDesc: "Promotions and benefits in the showroom",
+
+
+        //Events 
+        events: "Upcoming Events",
+        eventsDesc: "Discover the Mercedes Upcoming Events",
+        participate: "Participate",
+        eventsSubs: "Here you can explore our events. You must be logged in to participate.",
+        participated: 'Participated',
+        alreadyParticipated: 'You have already participated in this event',
+        eventDetails: "Event Details",
+        eventDetailsSubs: "Full details about this event",
+        eventLoadError: "Failed to load event details",
+        loading: "Loading...",
+        retry: "Retry",
+        participated: "Participated",
+        alreadyParticipated: "You have already participated in this event",
+        loginToParticipate: "Login To Participate",
+
 
         // Manage Users
         title: 'User Management',

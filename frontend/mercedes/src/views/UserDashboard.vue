@@ -1,4 +1,3 @@
-
 <template>
   <div :class="[
       { dark: isDark },
@@ -13,13 +12,17 @@
     <!-- MAIN (cards only) -->
     <main class="flex-1 w-full">
       <section class="flex flex-col items-center justify-center py-8 sm:py-12 w-full">
+        <!-- Title -->
         <h1 :class="['mb-4 font-bold text-2xl sm:text-3xl', isDark ? 'text-white' : 'text-zinc-800']">
-          {{ t('welcome') }}
+          {{ isAuthenticated ? t('welcomeAuthenticated') + " " + displayName  : t('welcome') }}
         </h1>
+
+        <!-- Subtitle -->
         <p :class="['mb-8', isDark ? 'text-zinc-300' : 'text-zinc-600', 'text-sm sm:text-base']">
-          {{ t('intro') }}
+          {{ t('DashboardIntro') }}
         </p>
 
+        <!-- CARDS -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 w-full max-w-5xl px-2 sm:px-4 md:px-8">
           <button
             v-for="(card, idx) in cardList"
@@ -49,29 +52,48 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePrefs } from '../components/usePrefs'
 import { useI18n } from '../composables/useI18n'
 
-/* Global prefs (single source of truth) */
+/* Global prefs */
 const { isDark } = usePrefs()
 const { t } = useI18n()
 
-/* Services */
+/* Router */
 const router = useRouter()
 
-/* Emit to parent (App.vue) */
+/* Props */
+const props = defineProps({
+  adminName: { type: String, default: '' }
+})
+
+/* Emit */
 const emit = defineEmits(['logout', 'navigate'])
 
-/* Date & time reactive to language */
+/* Authentication */
+const isAuthenticated = ref(localStorage.getItem('isLoggedIn') === 'true')
+
+/* Display name */
+const displayName = computed(() => {
+  const name = ('').trim()
+  return name.length > 50 ? name.slice(0, 50) + '...' : name || 'Visitor'
+})
+
+/* Debug */
+watchEffect(() => {
+  console.log('✅ displayName =', displayName.value)
+})
+
+/* Date & time */
 const time = ref('')
 const date = ref('')
 function updateDateTime() {
   const now = new Date()
   const loc = t('dateLocale') === 'FR' ? 'fr-FR' : 'en-GB'
-  time.value = now.toLocaleTimeString(loc, { hour:'2-digit', minute:'2-digit', second:'2-digit' })
-  date.value = now.toLocaleDateString(loc, { weekday:'long', year:'numeric', month:'long', day:'numeric' })
+  time.value = now.toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  date.value = now.toLocaleDateString(loc, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
 }
 let intervalId
 onMounted(() => {
@@ -80,40 +102,16 @@ onMounted(() => {
 })
 onUnmounted(() => clearInterval(intervalId))
 
-/* Cards → navigate with router */
+/* Cards */
 const cardList = computed(() => [
-  { 
-    emoji: "🚗", 
-    title: t('models'), 
-    desc: t('modelsDesc'), 
-    action: () => router.push('/cars') 
-  },
-  { 
-    emoji: "💡", 
-    title: t('tech'), 
-    desc: t('techDesc'), 
-    action: () => router.push('/techs') 
-  },
-  { 
-    emoji: "📝", 
-    title: t('testDrive'), 
-    desc: t('testDriveDesc'), 
-    action: () => router.push('/driveBook') 
-  },
-  { 
-    emoji: "📅", 
-    title: t('advisor'), 
-    desc: t('advisorDesc'), 
-    action: () => router.push('/advisor') 
-  },
-  { 
-    emoji: "🎁", 
-    title: t('offers'), 
-    desc: t('offersDesc'), 
-    action: () => router.push('/offers') 
-  },
+  { emoji: "🚗", title: t('models'), desc: t('modelsDesc'), action: () => router.push('/cars') },
+  { emoji: "💡", title: t('tech'), desc: t('techDesc'), action: () => router.push('/techs') },
+  { emoji: "📝", title: t('testDrive'), desc: t('testDriveDesc'), action: () => router.push('/driveBook') },
+  { emoji: "📅", title: t('advisor'), desc: t('advisorDesc'), action: () => router.push('/advisor') },
+  { emoji: "🎁", title: t('offers'), desc: t('offersDesc'), action: () => router.push('/offers') },
+  { emoji: "📌", title: t('events'), desc: t('eventsDesc'), action: () => router.push('/events') },
 ])
 
-/* Expose isDark for template (alias) */
+/* Expose isDark */
 const isDarkMode = isDark
 </script>

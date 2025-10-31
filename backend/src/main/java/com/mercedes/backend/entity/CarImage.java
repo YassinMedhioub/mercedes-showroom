@@ -13,7 +13,7 @@ public class CarImage {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "is_main")   // 👈 very important
+    @Column(name = "is_main")  
     private boolean main;
 
     @ManyToOne

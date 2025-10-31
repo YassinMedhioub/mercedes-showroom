@@ -70,11 +70,11 @@
           class="rounded-2xl p-5 shadow-xl transition-all duration-200 group"
           :class="props.isDark
             ? 'bg-zinc-900/90 text-white hover:bg-gray-300 hover:text-black border border-zinc-800'
-            : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-gray-100'"
+            : 'bg-white text-zinc-800 border border-zinc-200 hover:bg-gray-300'"
         >
           <div class="text-4xl mb-3">{{ f.emoji }}</div>
           <h3 class="font-semibold text-lg mb-1">{{ f.title }}</h3>
-          <p :class="[ props.isDark ? 'text-zinc-300' : 'text-zinc-600', 'text-sm mb-4' ]">
+          <p :class="[  'text-sm mb-4' ]">
             {{ f.desc }}
           </p>
 
@@ -82,7 +82,7 @@
           <ul class="space-y-1.5 mb-4">
             <li v-for="(b, j) in f.bullets" :key="j" class="flex items-start gap-2 text-sm">
               <span class="mt-0.5">•</span>
-              <span :class="props.isDark ? 'text-zinc-200' : 'text-zinc-700'">
+              <span >
                 {{ b }}
               </span>
             </li>
@@ -96,7 +96,7 @@
             <summary class="cursor-pointer px-3 py-2 rounded-lg text-sm font-semibold hover:underline select-none">
               {{ t('learnMore') }}
             </summary>
-            <div :class="[ props.isDark ? 'text-zinc-200' : 'text-zinc-700', 'text-sm px-3 py-2' ]">
+            <div :class="[  'text-sm px-3 py-2' ]">
               {{ f.more }}
             </div>
           </details>

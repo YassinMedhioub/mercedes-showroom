@@ -1,4 +1,3 @@
-
 import { createRouter, createWebHistory } from 'vue-router'
 import { verifyUser } from '../services/auth'
 
@@ -7,6 +6,8 @@ import AdminDashboard from '../views/AdminDashboard.vue'
 import AvailableCars from '../views/AvailableCars.vue'
 import CarDetails from '../views/CarDetails.vue'
 import DriveBook from '../views/DriveBook.vue'
+import EventDetails from '../views/EventDetails.vue'
+import Events from '../views/Events.vue'
 import Login from '../views/Login.vue'
 import ManageCars from '../views/ManageCars.vue'
 import ManageUsers from '../views/ManageUsers.vue'
@@ -17,8 +18,8 @@ import Statistics from '../views/Statistics.vue'
 import UserDashboard from '../views/UserDashboard.vue'
 
 const routes = [
+    { path: '/', name: 'dashboard', component: UserDashboard },
     { path: '/login', name: 'login', component: Login },
-    { path: '/dashboard', name: 'dashboard', component: UserDashboard },
     {
         path: '/admin',
         name: 'adminDashboard',
@@ -40,6 +41,25 @@ const routes = [
         }
     },
     { path: '/driveBook', name: 'driveBook', component: DriveBook },
+    {
+        path: '/events',
+        name: 'events',
+        component: Events
+    },
+    {
+        path: '/event/:id',
+        name: 'eventDetails',
+        component: EventDetails,
+        props: true,
+        meta: { requiresAuth: true }, // Protect event details for reservation
+        beforeEnter: (to, from, next) => {
+            const id = Number(to.params.id)
+            if (isNaN(id) || id <= 0) {
+                return next({ name: 'events' })
+            }
+            next()
+        }
+    },
     { path: '/advisor', name: 'meetAdvisor', component: MeetAdvisor },
     { path: '/techs', name: 'techs', component: MercedesTechs },
     { path: '/offers', name: 'offers', component: SpecialOffers },
@@ -61,7 +81,7 @@ const routes = [
         component: Statistics,
         meta: { requiresAdmin: true }
     },
-    { path: '/:pathMatch(.*)*', redirect: '/login' },
+    { path: '/:pathMatch(.*)*', redirect: '/' }, // Redirect invalid routes to dashboard
 ]
 
 const router = createRouter({
@@ -69,7 +89,7 @@ const router = createRouter({
     routes,
 })
 
-/* Navigation guard for login + admin */
+/* Navigation guard for auth and admin */
 router.beforeEach(async (to, from, next) => {
     console.log('🟡 ROUTER GUARD STARTED:', {
         toPath: to.path,
@@ -79,9 +99,10 @@ router.beforeEach(async (to, from, next) => {
     })
 
     try {
-        // Skip auth check for login page
-        if (to.name === 'login') {
-            console.log('🟢 SKIPPING AUTH - GOING TO LOGIN')
+        // Allow access to public routes (dashboard, events, cars, etc.) without auth
+        const publicRoutes = ['dashboard', 'login', 'cars', 'car', 'events', 'advisor', 'techs', 'offers']
+        if (publicRoutes.includes(to.name)) {
+            console.log('🟢 PUBLIC ROUTE - SKIPPING AUTH CHECK')
             next()
             return
         }
@@ -94,13 +115,14 @@ router.beforeEach(async (to, from, next) => {
             isLoggedIn,
             role,
             hasToken: !!token,
+            toRequiresAuth: to.meta.requiresAuth,
             toRequiresAdmin: to.meta.requiresAdmin
         })
 
-        // If not logged in, redirect to login
-        if (!isLoggedIn) {
+        // If route requires auth and user is not logged in, redirect to login with return URL
+        if (to.meta.requiresAuth && !isLoggedIn) {
             console.log('🔴 NOT LOGGED IN - REDIRECT TO LOGIN')
-            return next({ name: 'login' })
+            return next({ name: 'login', query: { redirect: to.fullPath } })
         }
 
         // Verify user session with backend
@@ -115,7 +137,7 @@ router.beforeEach(async (to, from, next) => {
             localStorage.removeItem('authToken')
             localStorage.removeItem('role')
             localStorage.removeItem('adminName')
-            return next({ name: 'login' })
+            return next({ name: 'login', query: { redirect: to.fullPath } })
         }
 
         // Admin route protection
@@ -125,7 +147,6 @@ router.beforeEach(async (to, from, next) => {
         }
 
         console.log('🟢 AUTH PASSED - ALLOWING NAVIGATION')
-        // SUCCESS: Allow navigation
         next()
 
     } catch (error) {
@@ -135,7 +156,7 @@ router.beforeEach(async (to, from, next) => {
         localStorage.removeItem('authToken')
         localStorage.removeItem('role')
         localStorage.removeItem('adminName')
-        next({ name: 'login' })
+        next({ name: 'login', query: { redirect: to.fullPath } })
     }
 })
 
