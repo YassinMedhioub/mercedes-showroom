@@ -9,7 +9,7 @@
 
 ---
 
-A **full-stack web application** for managing a **Mercedes-Benz showroom**, offering a **luxurious experience** for users and a **powerful admin interface** for staff.  
+A **full-stack web application** for managing a **Mercedes-Benz showroom**, offering a **luxurious experience for users** and a **powerful admin interface for staff**.  
 Developed as a **Final Year Project (PFE)** to demonstrate advanced web and AI integration.
 
 ---
@@ -53,13 +53,15 @@ Developed as a **Final Year Project (PFE)** to demonstrate advanced web and AI i
 
 ## 💼 Technical Details
 
-- 👨‍💻 **Developer**: NEMSS DEV  
-- 🏢 **Project Type**: Final Year Project (PFE)  
-- 🧠 **Institution**: [Your University Name or Leave Blank]  
+- 👨‍💻 **Developer:** NEMSS DEV  
+- 🏢 **Project Type:** Final Year Project (PFE)  
+- 🧠 **Institution:** [Your University Name or Leave Blank]  
 
-### 🧩 **Built With**
+---
 
-#### Frontend
+### 🧩 Built With
+
+#### 🖥️ Frontend
 - Vue 3 (Composition API)  
 - Vite  
 - Tailwind CSS  
@@ -67,7 +69,7 @@ Developed as a **Final Year Project (PFE)** to demonstrate advanced web and AI i
 - Axios  
 - LocalStorage  
 
-#### Backend
+#### 🧠 Backend
 - Spring Boot  
 - Spring Security (JWT)  
 - Spring Data JPA  
@@ -79,10 +81,12 @@ Developed as a **Final Year Project (PFE)** to demonstrate advanced web and AI i
 
 ## 🗂️ Database Structure
 
-- **cars** → id, model, type, year, price, images  
-- **users** → id, username, role, status  
-- **appointments** → id, user, car, date, status  
-- **ai_descriptions** → id, carId, language, content  
+| Table | Description |
+|--------|-------------|
+| **cars** | id, model, type, year, price, images |
+| **users** | id, username, role, status |
+| **appointments** | id, user, car, date, status |
+| **ai_descriptions** | id, carId, language, content |
 
 ---
 
@@ -93,39 +97,50 @@ Developed as a **Final Year Project (PFE)** to demonstrate advanced web and AI i
 cd frontend
 npm install
 npm run dev
-🧠 Backend
-bash
-Copier le code
+```
+
+### 🧠 Backend
+```bash
 cd backend
 mvn spring-boot:run
-⚙️ Configure your MySQL credentials and JWT secret inside application.properties.
+```
 
-🌐 Deployment
-Frontend → Vercel / Netlify
+> ⚙️ Configure your MySQL credentials and JWT secret inside `application.properties`.
 
-Backend → Render / Heroku / AWS
+---
 
-Database → MySQL (Local or Cloud)
+## 🌐 Deployment
 
-🚀 Future Enhancements
-Real OpenAI integration for AI car descriptions
+- **Frontend:** Vercel / Netlify  
+- **Backend:** Render / Heroku / AWS  
+- **Database:** MySQL (Local or Cloud)  
 
-Image upload system for Admin
+---
 
-Email notifications for bookings
+## 🚀 Future Enhancements
 
-Advanced analytics and statistics
+- ✅ Real OpenAI integration for AI car descriptions  
+- 🖼️ Image upload system for Admin  
+- 📧 Email notifications for bookings  
+- 📊 Advanced analytics and statistics  
+- 🧪 Unit tests (JUnit / Vue Test Utils)  
 
-Unit tests (JUnit / Vue Test Utils)
+---
 
-📢 About the Project
-“Luxury isn’t only in the cars — it’s in every line of code.
-This app reflects the prestige, innovation, and elegance of Mercedes-Benz.”
+## 📢 About the Project
 
-👨‍🎓 Author
-NEMSS DEV
-Full-Stack Developer | AI & Cloud Enthusiast
-📧 [Add your email here]
-🌐 GitHub Profile
+> “Luxury isn’t only in the cars — it’s in every line of code.  
+>  This app reflects the prestige, innovation, and elegance of Mercedes-Benz.”
 
-“Luxury in every detail — from the dashboard to the codebase.”
+---
+
+## 👨‍🎓 Author
+
+**NEMSS DEV**  
+Full-Stack Developer | AI & Cloud Enthusiast  
+📧 [Add your email here]  
+🌐 [GitHub Profile](https://github.com/NEMSS-DEV)
+
+---
+
+> _“Luxury in every detail — from the dashboard to the codebase.”_
