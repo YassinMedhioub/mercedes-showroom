@@ -30,6 +30,15 @@ public class EventController {
         return eventService.getAllEvents();
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<EventDTO> getEventById(@PathVariable Long id) {
+        EventDTO event = eventService.getEventById(id);
+        if (event == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(event);
+    }
+
     @PostMapping("/{id}/participate")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> participate(@PathVariable Long id, Authentication auth) {

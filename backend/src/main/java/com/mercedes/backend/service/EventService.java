@@ -63,6 +63,11 @@ public class EventService {
         return ResponseEntity.ok(Map.of("message", "Participation successful"));
     }
 
+    public EventDTO getEventById(Long id) {
+        return eventRepository.findById(id)
+                .map(this::convertToDTO)
+                .orElse(null);
+    }
 
     public List<Long> getUserParticipatedEventIds(Long userId) {
         return participationRepository.findEventIdsByUserId(userId);
