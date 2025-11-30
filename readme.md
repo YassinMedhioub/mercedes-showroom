@@ -10,7 +10,6 @@
 ---
 
 A **full-stack web application** for managing a **Mercedes-Benz showroom**, offering a **luxurious experience for users** and a **powerful admin interface for staff**.  
-Developed as a **Final Year Project (PFE)** to demonstrate advanced web and AI integration.
 
 ---
 
