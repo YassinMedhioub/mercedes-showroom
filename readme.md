@@ -27,19 +27,19 @@ A **full-stack web application** for managing a **Mercedes-Benz showroom**, offe
 ## 🖼️ Screenshots
 
 🏠 **Home Page**  
-![Home Page](screenshots/home.png)
+![Home Page](frontend/mercedes/src/assets/userDashboard.png)
 
-🚗 **Car Details**  
-![Car Details](screenshots/car-details.png)
+🚗 **Car**  
+![Car Details](frontend/mercedes/src/assets/cars.png)
 
 🧑‍💼 **Admin Dashboard**  
-![Admin Dashboard](screenshots/admin-dashboard.png)
+![Admin Dashboard](frontend/mercedes/src/assets/adminDashboard.png)
 
-🤖 **AI Description Generator**  
-![AI Generator](screenshots/ai-description.png)
+🤖 **AI Assistant**  
+![AI Generator](frontend/mercedes/src/assets/ai.png)
 
-🌓 **Dark Mode**  
-![Dark Mode](screenshots/dark-mode.png)
+🗓️ **Events**  
+![Admin Dashboard](frontend/mercedes/src/assets/events.png)
 
 ---
 
@@ -52,9 +52,9 @@ A **full-stack web application** for managing a **Mercedes-Benz showroom**, offe
 
 ## 💼 Technical Details
 
-- 👨‍💻 **Developer:** NEMSS DEV  
-- 🏢 **Project Type:** Final Year Project (PFE)  
-- 🧠 **Institution:** [Your University Name or Leave Blank]  
+- 👨‍💻 **Developer:** Yassin Medhioub  
+- 🏢 **Project Type:** Summer Internship 
+- 🧠 **Company Name:** Silver Star Sfax - Mercedes Benz Sfax   
 
 ---
 
@@ -98,6 +98,12 @@ npm install
 npm run dev
 ```
 
+### 🤖 AI
+```bash
+cd frontend
+npm run ai
+```
+
 ### 🧠 Backend
 ```bash
 cd backend
@@ -105,24 +111,6 @@ mvn spring-boot:run
 ```
 
 > ⚙️ Configure your MySQL credentials and JWT secret inside `application.properties`.
-
----
-
-## 🌐 Deployment
-
-- **Frontend:** Vercel / Netlify  
-- **Backend:** Render / Heroku / AWS  
-- **Database:** MySQL (Local or Cloud)  
-
----
-
-## 🚀 Future Enhancements
-
-- ✅ Real OpenAI integration for AI car descriptions  
-- 🖼️ Image upload system for Admin  
-- 📧 Email notifications for bookings  
-- 📊 Advanced analytics and statistics  
-- 🧪 Unit tests (JUnit / Vue Test Utils)  
 
 ---
 
@@ -135,10 +123,10 @@ mvn spring-boot:run
 
 ## 👨‍🎓 Author
 
-**NEMSS DEV**  
-Full-Stack Developer | AI & Cloud Enthusiast  
-📧 [Add your email here]  
-🌐 [GitHub Profile](https://github.com/NEMSS-DEV)
+**Yassin Medhioub**  
+Software Engineer Student | AI Engineering Enthusiast  
+📧 medhioubyassin6@gmail.com 
+🌐 [LinkedIn Profile]([https://github.com/NEMSS-DEV](https://www.linkedin.com/in/yassin-medhioub/))
 
 ---
 
