@@ -27,19 +27,28 @@ A **full-stack web application** for managing a **Mercedes-Benz showroom**, offe
 ## 🖼️ Screenshots
 
 🏠 **Home Page**  
+
 ![Home Page](frontend/mercedes/src/assets/userDashboard.png)
 
 🚗 **Car**  
+
 ![Car Details](frontend/mercedes/src/assets/cars.png)
 
 🧑‍💼 **Admin Dashboard**  
+
 ![Admin Dashboard](frontend/mercedes/src/assets/adminDashboard.png)
 
 🤖 **AI Assistant**  
+
 ![AI Generator](frontend/mercedes/src/assets/ai.png)
 
 🗓️ **Events**  
+
 ![Admin Dashboard](frontend/mercedes/src/assets/events.png)
+
+📊 **Statistics**  
+
+![Statistics](frontend/mercedes/src/assets/stat.png)
 
 ---
 
